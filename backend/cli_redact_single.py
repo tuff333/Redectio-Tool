@@ -1,52 +1,42 @@
 # backend/cli_redact_single.py
 
 import sys
-import os
+import json
+from pathlib import Path
+from pdfminer.high_level import extract_text
 
-from backend.template_loader import TemplateLoader
-from backend.pdf_text_extractor import PDFTextExtractor
-from backend.redaction_engine import RedactionEngine
+from template_loader import TemplateLoader
+from redactor_engine import RedactorEngine
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python backend/cli_redact_single.py <pdf_path>")
-        return
+def redact_single_pdf(input_pdf: str, output_pdf: str):
+    print(f"[cli] Processing: {input_pdf}")
 
-    pdf_path = sys.argv[1]
-
-    if not os.path.isfile(pdf_path):
-        print(f"ERROR: File not found: {pdf_path}")
-        return
-
-    print("\n=== COA Redaction Tool (Single File) ===\n")
+    # Extract text
+    pdf_text = extract_text(input_pdf)
 
     # Load templates
     loader = TemplateLoader()
-
-    # Extract text for auto-detection
-    extractor = PDFTextExtractor()
-    pdf_text = extractor.extract_text(pdf_path)
-
-    # Auto-detect template
     template = loader.auto_detect_template(pdf_text)
 
-    if not template:
-        print("ERROR: No matching company template found for this PDF.")
-        print("Make sure your templates contain correct detection keywords.")
-        return
+    # Initialize redactor
+    redactor = RedactorEngine(template)
 
-    print(f"Detected company: {template['display_name']} ({template['company_id']})")
+    # Run automatic redaction
+    result = redactor.redact_pdf(input_pdf, output_pdf)
 
-    # Run redaction
-    engine = RedactionEngine()
-    output_path = engine.redact_pdf(pdf_path, template)
+    # Save detection log
+    log_path = Path(output_pdf).with_suffix(".log.json")
+    with open(log_path, "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=4)
 
-    print("\n=== Redaction Complete ===")
-    print(f"Input:  {pdf_path}")
-    print(f"Output: {output_path}")
-    print("\n")
+    print(f"[cli] Redaction complete → {output_pdf}")
+    print(f"[cli] Log saved → {log_path}")
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) < 3:
+        print("Usage: python cli_redact_single.py input.pdf output.pdf")
+        sys.exit(1)
+
+    redact_single_pdf(sys.argv[1], sys.argv[2])

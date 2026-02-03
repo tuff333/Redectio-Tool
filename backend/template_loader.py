@@ -2,6 +2,7 @@
 
 import os
 import json
+import re
 from typing import Dict, Any, List, Optional
 
 
@@ -11,15 +12,17 @@ TEMPLATES_DIR = "templates"
 class TemplateLoader:
     """
     Loads, validates, and manages all company templates.
-    Provides:
+    Supports:
         - load_templates()
         - get_template(company_id)
         - auto_detect_template(pdf_text)
+        - fallback template for unknown companies
     """
 
     def __init__(self, templates_dir: str = TEMPLATES_DIR):
         self.templates_dir = templates_dir
         self.templates: Dict[str, Dict[str, Any]] = {}
+        self.fallback_template = None
         self.load_templates()
 
     # ---------------------------------------------------------
@@ -44,8 +47,12 @@ class TemplateLoader:
                 self.validate_template(template)
                 company_id = template["company_id"]
 
-                self.templates[company_id] = template
-                print(f"[template_loader] Loaded template: {company_id}")
+                if company_id == "fallback":
+                    self.fallback_template = template
+                    print("[template_loader] Loaded fallback template")
+                else:
+                    self.templates[company_id] = template
+                    print(f"[template_loader] Loaded template: {company_id}")
 
             except Exception as e:
                 print(f"[template_loader] ERROR loading {filename}: {e}")
@@ -60,12 +67,13 @@ class TemplateLoader:
             if field not in template:
                 raise ValueError(f"Template missing required field: {field}")
 
-        if "text_contains" not in template["detection"]:
+        detection = template["detection"]
+
+        if "text_contains" not in detection and "regex" not in detection:
             raise ValueError(
-                f"Template {template['company_id']} missing detection.text_contains"
+                f"Template {template['company_id']} must have detection.text_contains or detection.regex"
             )
 
-        # Optional fields: page_patterns, rules, qr_code_regions
         template.setdefault("page_patterns", [])
         template.setdefault("rules", [])
         template.setdefault("qr_code_regions", [])
@@ -79,29 +87,39 @@ class TemplateLoader:
     # ---------------------------------------------------------
     # Auto-detect template based on PDF text
     # ---------------------------------------------------------
-    def auto_detect_template(self, pdf_text: str) -> Optional[Dict[str, Any]]:
-        """
-        Returns the best matching template based on:
-            - text_contains keywords
-            - priority
-        """
-
+    def auto_detect_template(self, pdf_text: str) -> Dict[str, Any]:
         pdf_text_lower = pdf_text.lower()
         best_match = None
-        best_priority = -999
+        best_score = 0
 
         for template in self.templates.values():
             detection = template.get("detection", {})
-            keywords = detection.get("text_contains", [])
-            priority = detection.get("priority", 0)
+            score = 0
 
-            # Check if ANY keyword matches
-            if any(kw.lower() in pdf_text_lower for kw in keywords):
-                if priority > best_priority:
-                    best_priority = priority
-                    best_match = template
+            # Keyword detection
+            for kw in detection.get("text_contains", []):
+                if kw.lower() in pdf_text_lower:
+                    score += 10
 
-        return best_match
+            # Regex detection
+            for pattern in detection.get("regex", []):
+                if re.search(pattern, pdf_text, re.IGNORECASE):
+                    score += 20
+
+            # Priority boost
+            score += detection.get("priority", 0)
+
+            if score > best_score:
+                best_score = score
+                best_match = template
+
+        if best_match:
+            print(f"[template_loader] Auto-detected company: {best_match['company_id']} (score={best_score})")
+            return best_match
+
+        # Fallback template for unknown companies
+        print("[template_loader] No template matched. Using fallback template.")
+        return self.fallback_template
 
     # ---------------------------------------------------------
     # List all templates
