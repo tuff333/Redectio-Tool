@@ -55,6 +55,7 @@
 
       <!-- Content -->
       <main class="content">
+        <!-- Upload panel -->
         <section class="panel panel-upload">
           <h2 class="panel-title">1. Upload COA PDF</h2>
           <p class="panel-description">
@@ -79,14 +80,50 @@
           <div id="statusText" class="status-text"></div>
         </section>
 
+        <!-- Preview + redaction tools -->
         <section class="panel panel-preview">
-          <h2 class="panel-title">2. Preview Original PDF</h2>
+          <h2 class="panel-title">2. Preview & Manual Redaction</h2>
           <p class="panel-description">
-            This is the original document. After redaction, you’ll get a downloadable redacted PDF.
+            View the original document, draw redaction boxes, or select text to redact. Auto-redaction still uses templates.
           </p>
 
+          <!-- Redaction toolbar (Stirling-style controls) -->
+          <div class="redact-toolbar">
+            <div class="toolbar-group">
+              <button id="btnModeSelectText" class="btn btn-toggle btn-toggle-active" type="button">
+                Select Text
+              </button>
+              <button id="btnModeDrawBox" class="btn btn-toggle" type="button">
+                Draw Box
+              </button>
+            </div>
+
+            <div class="toolbar-group">
+              <button id="btnUndo" class="btn btn-ghost btn-small" type="button" disabled>
+                Undo
+              </button>
+              <button id="btnRedo" class="btn btn-ghost btn-small" type="button" disabled>
+                Redo
+              </button>
+            </div>
+
+            <div class="toolbar-group toolbar-group-right">
+              <button id="btnApplyTemplateRedact" class="btn btn-ghost btn-small" type="button">
+                Apply Template Redaction
+              </button>
+              <button id="btnApplyAutoRedact" class="btn btn-primary btn-small" type="button">
+                Auto Redact Now
+              </button>
+            </div>
+          </div>
+
+          <!-- PDF preview with overlay -->
           <div class="preview-container">
-            <iframe id="pdfViewer" class="pdf-viewer" title="PDF Preview"></iframe>
+            <div class="pdf-wrapper">
+              <iframe id="pdfViewer" class="pdf-viewer" title="PDF Preview"></iframe>
+              <!-- Overlay canvas for redaction boxes (drawn on top of PDF) -->
+              <canvas id="redactOverlay" class="redact-overlay"></canvas>
+            </div>
           </div>
         </section>
       </main>
