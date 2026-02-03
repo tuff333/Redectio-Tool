@@ -1,0 +1,114 @@
+{
+  "company_id": "high_north",
+  "display_name": "High North Inc.",
+  "detection": {
+    "text_contains": [
+      "High North Inc.",
+      "HIGH\nNORTH",
+      "ISO 17025:2017",
+      "SOC Accredited",
+      "Accrédité CCN"
+    ],
+    "priority": 100
+  },
+  "page_patterns": [],
+  "qr_code_regions": [],
+  "rules": [
+    {
+      "id": "company_name",
+      "description": "Company name (High North Inc., with minor variations)",
+      "type": "regex",
+      "pattern": "High\\s+North\\s+Inc\\.?|HIGH\\s+NORTH",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "company_address",
+      "description": "Company address line(s)",
+      "type": "regex",
+      "pattern": "241\\s+Hanlan\\s+Rd[^\\n]*|Woodbridge,\\s*ON[^\\n]*",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "company_phone",
+      "description": "Company phone numbers (e.g., 1-416-864-6122)",
+      "type": "regex",
+      "pattern": "\\b\\d{1}-\\d{3}-\\d{3}-\\d{4}\\b",
+      "flags": [],
+      "scope": "all_pages"
+    },
+    {
+      "id": "iso_accreditation",
+      "description": "ISO 17025:2017 Accredited Laboratory line",
+      "type": "regex",
+      "pattern": "ISO\\s*17025:2017\\s*Accredited\\s*Laboratory",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "scc_accredited",
+      "description": "SCC Accredited LAB logo text",
+      "type": "regex",
+      "pattern": "SOC\\s+Accredited\\s+LAB",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "ccn_accredited",
+      "description": "CCN Accredited logo text",
+      "type": "regex",
+      "pattern": "Accrédité\\s+CCN",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "tm_logo",
+      "description": "TM logo text",
+      "type": "regex",
+      "pattern": "\\bTM\\b",
+      "flags": [],
+      "scope": "all_pages"
+    },
+    {
+      "id": "client_block",
+      "description": "Client / Name block (variable client info)",
+      "type": "regex",
+      "pattern": "Client:\\s*\\nName:[^\\n]*",
+      "flags": ["IGNORECASE", "MULTILINE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "high_north_id",
+      "description": "High North ID (e.g., High North ID: 00685494)",
+      "type": "regex",
+      "pattern": "High\\s+North\\s+ID:\\s*\\d+",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "certificate_number",
+      "description": "Certificate number (e.g., Certificate: 1746227553)",
+      "type": "regex",
+      "pattern": "Certificate:\\s*\\d+",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "lot_number",
+      "description": "Lot number (e.g., Lot: RNP-0029)",
+      "type": "regex",
+      "pattern": "Lot:\\s*[A-Za-z0-9\\-]+",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    },
+    {
+      "id": "coa_number_generic",
+      "description": "Generic COA number pattern (for other labs too)",
+      "type": "regex",
+      "pattern": "COA\\s*(number|Number)?[:\\s]+[A-Za-z0-9_\\-]+",
+      "flags": ["IGNORECASE"],
+      "scope": "all_pages"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "company_id": "pathogenia",
+  "display_name": "Pathogenia Inc.",
+  "detection": {
+    "text_contains": [
+      "pathogenia",
+      "we make food safer",
+      "5055 rue fisher",
+      "saint laurent",
+      "par11505",
+      "certificate of analysis",
+      "coa number"
+    ],
+    "priority": 8
+  },
+
+  "page_patterns": [
+    {
+      "page": "any",
+      "patterns": [
+        {
+          "label": "company_name",
+          "regex": "(Pathogenia\\s*Inc\\.?|PATHOGENIA)",
+          "redact": true
+        },
+        {
+          "label": "company_address",
+          "regex": "5055\\s+rue\\s+fisher.*?(H4T\\s*1J8)?",
+          "redact": true
+        },
+        {
+          "label": "company_phone",
+          "regex": "\\+?1[-\\s]?514[-\\s]?446[-\\s]?6500",
+          "redact": true
+        },
+        {
+          "label": "client_name",
+          "regex": "(Client Name|Client):\\s*(.*)",
+          "redact": true
+        },
+        {
+          "label": "sample_name",
+          "regex": "Sample Name\\s*:?\\s*(.*)",
+          "redact": true
+        },
+        {
+          "label": "sample_id",
+          "regex": "Sample ID\\s*:?\\s*([A-Za-z0-9-]+)",
+          "redact": true
+        },
+        {
+          "label": "lab_id",
+          "regex": "Laboratory ID\\s*:?\\s*([A-Za-z0-9-]+)",
+          "redact": true
+        },
+        {
+          "label": "coa_number",
+          "regex": "COA number\\s*:?\\s*([A-Za-z0-9-_]+)",
+          "redact": true
+        },
+        {
+          "label": "analysis_request_id",
+          "regex": "Analysis Request ID\\s*:?\\s*([A-Za-z0-9-_]+)",
+          "redact": true
+        },
+        {
+          "label": "dates",
+          "regex": "(\\d{2}-[A-Za-z]{3}-\\d{4}|\\d{4}-\\d{2}-\\d{2})",
+          "redact": false
+        }
+      ]
+    }
+  ],
+
+  "rules": [
+    {
+      "description": "Redact any email addresses",
+      "regex": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "redact": true
+    },
+    {
+      "description": "Redact any phone numbers",
+      "regex": "\\+?1?[-.\\s]?(\\d{3})[-.\\s]?(\\d{3})[-.\\s]?(\\d{4})",
+      "redact": true
+    }
+  ],
+
+  "qr_code_regions": []
+}
