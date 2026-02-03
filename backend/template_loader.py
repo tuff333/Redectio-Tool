@@ -2,7 +2,6 @@
 
 import os
 import json
-import re
 from typing import Dict, Any, List, Optional
 
 
@@ -13,16 +12,15 @@ class TemplateLoader:
     """
     Loads, validates, and manages all company templates.
     Supports:
-        - load_templates()
-        - get_template(company_id)
-        - auto_detect_template(pdf_text)
-        - fallback template for unknown companies
+        - Multiple companies (High North, PPB, Pathogenia, etc.)
+        - Auto-detection using keywords, regex, page patterns
+        - Fallback template for unknown companies
     """
 
     def __init__(self, templates_dir: str = TEMPLATES_DIR):
         self.templates_dir = templates_dir
         self.templates: Dict[str, Dict[str, Any]] = {}
-        self.fallback_template = None
+        self.fallback_template: Optional[Dict[str, Any]] = None
         self.load_templates()
 
     # ---------------------------------------------------------
@@ -49,7 +47,7 @@ class TemplateLoader:
 
                 if company_id == "fallback":
                     self.fallback_template = template
-                    print("[template_loader] Loaded fallback template")
+                    print("[template_loader] Loaded FALLBACK template")
                 else:
                     self.templates[company_id] = template
                     print(f"[template_loader] Loaded template: {company_id}")
@@ -69,11 +67,12 @@ class TemplateLoader:
 
         detection = template["detection"]
 
-        if "text_contains" not in detection and "regex" not in detection:
+        if "text_contains" not in detection:
             raise ValueError(
-                f"Template {template['company_id']} must have detection.text_contains or detection.regex"
+                f"Template {template['company_id']} missing detection.text_contains"
             )
 
+        # Optional fields
         template.setdefault("page_patterns", [])
         template.setdefault("rules", [])
         template.setdefault("qr_code_regions", [])
@@ -88,38 +87,36 @@ class TemplateLoader:
     # Auto-detect template based on PDF text
     # ---------------------------------------------------------
     def auto_detect_template(self, pdf_text: str) -> Dict[str, Any]:
+        """
+        Returns:
+            - Best matching template
+            - OR fallback template
+        """
+
         pdf_text_lower = pdf_text.lower()
         best_match = None
-        best_score = 0
+        best_priority = -999
 
         for template in self.templates.values():
             detection = template.get("detection", {})
-            score = 0
+            keywords = detection.get("text_contains", [])
+            priority = detection.get("priority", 0)
 
-            # Keyword detection
-            for kw in detection.get("text_contains", []):
-                if kw.lower() in pdf_text_lower:
-                    score += 10
-
-            # Regex detection
-            for pattern in detection.get("regex", []):
-                if re.search(pattern, pdf_text, re.IGNORECASE):
-                    score += 20
-
-            # Priority boost
-            score += detection.get("priority", 0)
-
-            if score > best_score:
-                best_score = score
-                best_match = template
+            # ANY keyword match = valid
+            if any(kw.lower() in pdf_text_lower for kw in keywords):
+                if priority > best_priority:
+                    best_priority = priority
+                    best_match = template
 
         if best_match:
-            print(f"[template_loader] Auto-detected company: {best_match['company_id']} (score={best_score})")
             return best_match
 
-        # Fallback template for unknown companies
-        print("[template_loader] No template matched. Using fallback template.")
-        return self.fallback_template
+        # No match → fallback
+        if self.fallback_template:
+            print("[template_loader] Using FALLBACK template")
+            return self.fallback_template
+
+        raise RuntimeError("No template matched and no fallback template exists.")
 
     # ---------------------------------------------------------
     # List all templates
