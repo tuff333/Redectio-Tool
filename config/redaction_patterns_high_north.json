@@ -1,0 +1,80 @@
+{
+  "companies": {
+    "high_north": {
+      "names": [
+        "High North Inc.",
+        "HIGH NORTH"
+      ],
+      "addresses": [
+        "241 Hanlan Rd, Unit 7",
+        "Woodbridge, ON, L4L 3R7"
+      ],
+      "phones": [
+        "1-416-864-6122"
+      ]
+    },
+    "pathogenia": {
+      "names": [
+        "Pathogenia Inc",
+        "PATHOGENIA"
+      ],
+      "addresses": [
+        "5055 rue Fisher",
+        "Saint Laurent, Quebec, Canada - H4T 1J8"
+      ],
+      "phones": [
+        "+15144466500"
+      ],
+      "emails": [
+        "samples@pathogenia.com"
+      ]
+    }
+  },
+  "fixed_phrases": [
+    "ISO 17025:2017 Accredited Laboratory",
+    "ISO 17025:2017",
+    "SOC Accredited",
+    "Accrédité CCN",
+    "SCC Accreditation Symbol",
+    "Accredited Laboratory"
+  ],
+  "label_patterns": [
+    "High North ID:",
+    "Certificate:",
+    "COA number",
+    "COA Date",
+    "Analysis Request ID",
+    "Lot:",
+    "Product:",
+    "Matrix:",
+    "Sub-matrix:",
+    "Sampled:",
+    "Received:",
+    "Temperature on Receipt:",
+    "Receiving Temperature",
+    "Client:",
+    "Name:",
+    "Sample ID",
+    "Laboratory ID",
+    "Authorized by:",
+    "Quality Control and Release",
+    "Laboratory Manager",
+    "Signature:"
+  ],
+  "regex_patterns": {
+    "phone": [
+      "\\+?[0-9][0-9\\- ]{7,}[0-9]"
+    ],
+    "date": [
+      "\\b[0-9]{4}-[0-9]{2}-[0-9]{2}\\b",
+      "\\b[0-9]{2}-[A-Za-z]{3}-[0-9]{4}\\b"
+    ],
+    "id_like": [
+      "\\b[0-9]{8}\\b",
+      "\\b[A-Z]{2,5}-[0-9]{2,4}\\b"
+    ],
+    "email": [
+      "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+    ]
+  }
+}
