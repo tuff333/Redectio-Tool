@@ -1,18 +1,29 @@
 @echo off
-title COA Redaction Tool
+title COA Redaction Tool (Single Window Mode)
 
-echo Starting COA Redaction API server...
-start "" cmd /c "uvicorn backend.api_server:app --reload --port 8000"
+echo ============================================
+echo    Starting COA Redaction Tool ( Rasesh )
+echo ============================================
 
-echo Starting frontend server...
-cd frontend
-start "" cmd /c "python -m http.server 5500"
-cd ..
+REM --- Start API server in background ---
+echo Starting API server on port 8000...
+start /b uvicorn backend.api_server:app --reload --port 8000
 
+REM --- Start frontend server in background ---
+echo Starting frontend server on port 5500...
+pushd frontend
+start /b python -m http.server 5500
+popd
+
+REM --- Wait for servers to boot ---
 echo Waiting for servers to start...
 timeout /t 3 >nul
 
+REM --- Open browser automatically ---
 echo Opening browser...
 start "" "http://127.0.0.1:5500/index.html"
 
-echo App is running.
+echo ============================================
+echo   COA Redaction Tool is running.
+echo   Press CTRL + C to stop servers.
+echo ============================================
