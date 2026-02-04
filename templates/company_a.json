@@ -1,0 +1,74 @@
+{
+  "company_id": "company_a",
+  "display_name": "Company A Labs",
+
+  "detection": {
+    "text_contains": ["Company A", "COA", "Certificate of Analysis"],
+    "logo_match": null,
+    "priority": 10
+  },
+
+  "page_patterns": [
+    {
+      "page_type": "first_page",
+      "zones": [
+        {
+          "label": "client_name",
+          "type": "zone",
+          "page_index": 0,
+          "x1": 120,
+          "y1": 180,
+          "x2": 420,
+          "y2": 220,
+          "style": "black"
+        },
+        {
+          "label": "client_address",
+          "type": "zone",
+          "page_index": 0,
+          "x1": 120,
+          "y1": 230,
+          "x2": 420,
+          "y2": 300,
+          "style": "black"
+        }
+      ]
+    }
+  ],
+
+  "rules": [
+    {
+      "label": "email",
+      "type": "regex",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "scope": "all_pages",
+      "style": "white"
+    },
+    {
+      "label": "phone",
+      "type": "regex",
+      "pattern": "\\+?\\d[\\d\\s\\-]{7,}\\d",
+      "scope": "all_pages",
+      "style": "black"
+    },
+    {
+      "label": "lot_number",
+      "type": "regex",
+      "pattern": "Lot\\s*(No\\.|Number)\\s*[:#]?\\s*([A-Z0-9-]+)",
+      "redact_group": 2,
+      "scope": "all_pages",
+      "style": "black"
+    }
+  ],
+
+  "qr_code_regions": [
+    {
+      "page_index": 0,
+      "x1": 450,
+      "y1": 100,
+      "x2": 550,
+      "y2": 200,
+      "style": "white"
+    }
+  ]
+}
