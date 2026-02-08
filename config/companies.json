@@ -1,0 +1,23 @@
+{
+  "companies": [
+    {
+      "id": "high_north",
+      "display_name": "High North Inc.",
+      "match_strings": ["High North Inc.", "High North"],
+      "template_file": "redaction_patterns_high_north.json"
+    },
+    {
+      "id": "pathogenia",
+      "display_name": "Pathogenia Inc.",
+      "match_strings": ["Pathogenia Inc.", "Pathogenia"],
+      "template_file": "redaction_patterns_pathogenia.json"
+    },
+    {
+      "id": "ppb",
+      "display_name": "PPB",
+      "match_strings": ["PPB"],
+      "template_file": "redaction_patterns_ppb.json"
+    }
+  ],
+  "fallback_template_file": "redaction_patterns_generic.json"
+}

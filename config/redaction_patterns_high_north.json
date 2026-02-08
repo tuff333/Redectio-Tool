@@ -1,0 +1,144 @@
+{
+  "company_id": "high_north",
+  "display_name": "High North Inc.",
+  "detection": {
+    "text_contains": [
+      "High North Inc.",
+      "HIGH NORTH",
+      "High North ID:",
+      "ISO 17025:2017",
+      "SCC Accredited LAB"
+    ],
+    "priority": 10
+  },
+  "page_patterns": [],
+  "qr_code_regions": [],
+  "rules": [
+    {
+      "id": "company_name",
+      "description": "Redact company name variants",
+      "type": "regex",
+      "pattern": "\\bHigh\\s+North\\s+Inc\\.?\\b|\\bHIGH\\s+NORTH\\b",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "company_address",
+      "description": "Redact address lines near High North",
+      "type": "regex",
+      "pattern": "241\\s+Hanlan\\s+Rd[^\\n]*|Woodbridge,\\s*ON[^\\n]*",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "company_phone",
+      "description": "Redact phone numbers",
+      "type": "regex",
+      "pattern": "\\+?\\d[\\d\\-\\s\\(\\)]{7,}\\d",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "accreditation_iso",
+      "description": "Redact ISO 17025 accreditation line",
+      "type": "regex",
+      "pattern": "ISO\\s*17025:2017[^\\n]*",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "accreditation_scc",
+      "description": "Redact SCC / CCN accreditation mentions",
+      "type": "regex",
+      "pattern": "SCC\\s+Accredited\\s+LAB[^\\n]*|Accrédité\\s+CCN[^\\n]*",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "high_north_id",
+      "description": "Redact High North ID values",
+      "type": "regex",
+      "pattern": "High\\s+North\\s+ID:\\s*\\S+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "certificate_number",
+      "description": "Redact certificate numbers",
+      "type": "regex",
+      "pattern": "Certificate:\\s*\\S+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "coa_number",
+      "description": "Redact COA number lines",
+      "type": "regex",
+      "pattern": "COA\\s+number\\s*[:#]?\\s*\\S+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "lot_number",
+      "description": "Redact lot numbers",
+      "type": "regex",
+      "pattern": "Lot:\\s*[^\\n]+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "product_name",
+      "description": "Redact product names",
+      "type": "regex",
+      "pattern": "Product:\\s*[^\\n]+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "client_block",
+      "description": "Redact client information block",
+      "type": "regex",
+      "pattern": "Client:\\s*(?:\\n.*?){1,5}",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "client_name",
+      "description": "Redact explicit Client Name lines",
+      "type": "regex",
+      "pattern": "Client\\s+Name\\s*:?\\s*[^\\n]+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "analysis_request_id",
+      "description": "Redact analysis request IDs",
+      "type": "regex",
+      "pattern": "Analysis\\s+Request\\s+ID\\s*:?\\s*\\S+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    },
+    {
+      "id": "laboratory_id",
+      "description": "Redact laboratory IDs",
+      "type": "regex",
+      "pattern": "Laboratory\\s+ID\\s*:?\\s*\\S+",
+      "flags": "im",
+      "pages": "all",
+      "action": "redact_text"
+    }
+  ]
+}

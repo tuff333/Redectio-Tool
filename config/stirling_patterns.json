@@ -1,0 +1,35 @@
+{
+  "name": "Stirling-PDF Compatible Patterns",
+  "patterns": [
+    {
+      "id": "EMAIL",
+      "regex": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "description": "Email addresses"
+    },
+    {
+      "id": "PHONE_US",
+      "regex": "(\\+?1[-.\\s]?)?\\(?[0-9]{3}\\)?[-.\\s]?[0-9]{3}[-.\\s]?[0-9]{4}",
+      "description": "US Phone numbers"
+    },
+    {
+      "id": "SSN",
+      "regex": "\\b\\d{3}[-]?\\d{2}[-]?\\d{4}\\b",
+      "description": "Social Security Numbers"
+    },
+    {
+      "id": "CREDIT_CARD",
+      "regex": "\\b(?:\\d[ -]*?){13,16}\\b",
+      "description": "Credit card numbers"
+    },
+    {
+      "id": "IP_ADDRESS",
+      "regex": "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+      "description": "IP addresses"
+    },
+    {
+      "id": "MAC_ADDRESS",
+      "regex": "\\b([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})\\b",
+      "description": "MAC addresses"
+    }
+  ]
+}

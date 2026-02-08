@@ -1,0 +1,19 @@
+# Backend dependencies for COA Redaction Tool
+
+# Web framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# PDF processing
+PyMuPDF==1.23.7
+
+# OCR
+pytesseract==0.3.10
+Pillow==10.1.0
+
+# Data handling
+pydantic==2.5.0
+
+# CORS middleware
+python-dotenv==1.0.0
