@@ -18,7 +18,6 @@ import {
 
 import { performSearch, updateSearchInfo, scrollToSearchResult } from "./Search.js";
 import { initFileIO } from "./FileIO.js";
-import { initTemplateUI } from "./Template_UI.js";
 
 import { attachBoxRedactionHandlers } from "./Redaction_Box.js";
 import { attachTextSelectionHandlers } from "./Redaction_TextSelect.js";
@@ -64,6 +63,7 @@ let registeredListeners = [];
  * Register a listener so we can remove it later
  */
 function addListener(target, event, handler) {
+  if (!target) return;
   target.addEventListener(event, handler);
   registeredListeners.push({ target, event, handler });
 }
@@ -85,6 +85,8 @@ function attachHandlersToAllPages() {
   cleanupListeners(); // ← CRITICAL FIX
 
   for (const view of pageViews) {
+    if (!view) continue;
+
     // Box redaction
     addListener(view.overlay, "mousedown", e =>
       attachBoxRedactionHandlers(view.overlay, view, e)
@@ -212,7 +214,6 @@ function initRedactionModeControls() {
 // ------------------------------------------------------------
 export function initApp() {
   initFileIO();
-  initTemplateUI();
   initSearchControls();
   initAutoRedactionControls();
   initReviewModeControls();
