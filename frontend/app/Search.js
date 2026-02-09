@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// Search.js — Precision search using structured textStore
+// Search.js — Multi-span search engine (FIXED)
 // ------------------------------------------------------------
 
 import { textStore } from "./TextLayer.js";
@@ -17,7 +17,6 @@ import {
 import { pageViews } from "./Utils.js";
 import { renderAllPages } from "./PDF_Loader.js";
 
-// DOM elements
 const searchInput = document.getElementById("searchInput");
 const searchInfo = document.getElementById("searchInfo");
 const pdfScrollContainer = document.querySelector(".pdf-scroll-container");
@@ -37,7 +36,7 @@ export async function performSearch() {
 
   let regex = null;
 
-  // Support /regex/ syntax
+  // /regex/ support
   if (query.startsWith("/") && query.endsWith("/")) {
     try {
       regex = new RegExp(query.slice(1, -1), "gi");
@@ -46,46 +45,42 @@ export async function performSearch() {
       return;
     }
   } else {
-    // Escape regex special chars for literal search
     const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     regex = new RegExp(escaped, "gi");
   }
 
   const results = [];
 
+  // ------------------------------------------------------------
+  // Multi-span search using fullText + charMap
+  // ------------------------------------------------------------
   for (const page in textStore) {
-    const items = textStore[page];
-    if (!items) continue;
+    const store = textStore[page];
+    if (!store) continue;
 
-    const rects = [];
+    const { fullText, charMap } = store;
+    const pageMatches = [];
 
-    for (const item of items) {
-      const text = item.text;
-      let match;
+    let match;
+    while ((match = regex.exec(fullText)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
 
-      while ((match = regex.exec(text)) !== null) {
-        const start = match.index;
-        const end = start + match[0].length;
+      // Build bounding box from charMap[start..end]
+      const chars = charMap.slice(start, end);
 
-        const totalWidth = item.x1 - item.x0;
-        const charWidth = totalWidth / text.length;
+      const x0 = Math.min(...chars.map(c => c.x0));
+      const y0 = Math.min(...chars.map(c => c.y0));
+      const x1 = Math.max(...chars.map(c => c.x1));
+      const y1 = Math.max(...chars.map(c => c.y1));
 
-        const x0 = item.x0 + charWidth * start;
-        const x1 = item.x0 + charWidth * end;
-
-        rects.push({
-          x0,
-          y0: item.y0,
-          x1,
-          y1: item.y1
-        });
-      }
+      pageMatches.push({ x0, y0, x1, y1 });
     }
 
-    if (rects.length > 0) {
+    if (pageMatches.length > 0) {
       results.push({
         page: Number(page),
-        rects
+        rects: pageMatches
       });
     }
   }
@@ -105,16 +100,15 @@ export async function performSearch() {
 }
 
 // ------------------------------------------------------------
-// scrollToSearchResult(result)
+// scrollToSearchResult()
 // ------------------------------------------------------------
 export function scrollToSearchResult(result) {
   const view = pageViews.find(v => v.pageNumber === result.page);
   if (!view) return;
 
-  const firstRect = result.rects[0];
-  const y = firstRect.y0 * view.canvas.height;
+  const first = result.rects[0];
+  const y = first.y0 * view.canvas.height;
 
-  // FIXED: view.container → view.wrapper
   pdfScrollContainer.scrollTo({
     top: view.wrapper.offsetTop + y - 100,
     behavior: "smooth"
@@ -133,28 +127,27 @@ export function updateSearchInfo() {
 }
 
 // ------------------------------------------------------------
-// drawSearchHighlightsOnView(view)
+// drawSearchHighlightsOnView()
 // ------------------------------------------------------------
 export function drawSearchHighlightsOnView(view) {
   if (!highlightMode) return;
 
-  const overlayCtx = view.overlay.getContext("2d");
-  overlayCtx.save();
-  overlayCtx.strokeStyle = "yellow";
-  overlayCtx.lineWidth = 2;
+  const ctx = view.overlay.getContext("2d");
+  ctx.save();
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 2;
 
-  const pageMatches = searchResults.find(r => r.page === view.pageNumber);
-
-  if (pageMatches) {
-    for (const rect of pageMatches.rects) {
+  const matches = searchResults.find(r => r.page === view.pageNumber);
+  if (matches) {
+    for (const rect of matches.rects) {
       const x = rect.x0 * view.overlay.width;
       const y = rect.y0 * view.overlay.height;
       const w = (rect.x1 - rect.x0) * view.overlay.width;
       const h = (rect.y1 - rect.y0) * view.overlay.height;
 
-      overlayCtx.strokeRect(x, y, w, h);
+      ctx.strokeRect(x, y, w, h);
     }
   }
 
-  overlayCtx.restore();
+  ctx.restore();
 }
