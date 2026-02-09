@@ -1,87 +1,73 @@
 // ------------------------------------------------------------
-// Coordinates.js — Screen ↔ PDF coordinate conversion
-// CRITICAL FIX for accurate redaction placement
+// Coordinates.js — Correct Screen ↔ PDF coordinate conversion
+// FIXED: Applies viewport.scale + viewport offsets
 // ------------------------------------------------------------
 
 export class CoordinateConverter {
-  constructor(pdfViewer) {
-    this.pdfViewer = pdfViewer;
+  constructor(pageViews) {
+    this.pageViews = pageViews; // array from Utils.js
   }
 
-  /**
-   * Convert screen (mouse) coordinates to PDF coordinates
-   * ESSENTIAL for saving redaction positions correctly
-   */
+  // ------------------------------------------------------------
+  // Convert screen (mouse) → PDF coordinates
+  // ------------------------------------------------------------
   screenToPdf(screenX, screenY, pageNumber) {
-    const pageView = this.pdfViewer.getPageView(pageNumber - 1);
-    if (!pageView) {
-      console.error(`Page ${pageNumber} not found`);
-      return null;
-    }
+    const view = this.pageViews.find(v => v.pageNumber === pageNumber);
+    if (!view) return null;
 
-    const viewport = pageView.viewport;
-    const rect = pageView.div.getBoundingClientRect();
-    
-    // Calculate position relative to page div
-    const relativeX = screenX - rect.left;
-    const relativeY = screenY - rect.top;
-    
-    // Convert to PDF coordinates (accounting for zoom/rotation)
-    const pdfPoint = viewport.convertToPdfPoint(relativeX, relativeY);
-    
-    return {
-      x: pdfPoint[0],
-      y: pdfPoint[1],
-      page: pageNumber
-    };
+    const rect = view.wrapper.getBoundingClientRect();
+    const viewport = view.viewport;
+
+    // Position inside the page container
+    const x = screenX - rect.left;
+    const y = screenY - rect.top;
+
+    // FIX: Apply viewport scale
+    const pdfX = x / viewport.scale;
+    const pdfY = y / viewport.scale;
+
+    return { x: pdfX, y: pdfY, page: pageNumber };
   }
 
-  /**
-   * Convert PDF coordinates to screen coordinates for rendering
-   * ESSENTIAL for drawing boxes at correct positions
-   */
+  // ------------------------------------------------------------
+  // Convert PDF → screen coordinates
+  // ------------------------------------------------------------
   pdfToScreen(pdfX, pdfY, pageNumber) {
-    const pageView = this.pdfViewer.getPageView(pageNumber - 1);
-    if (!pageView) return null;
+    const view = this.pageViews.find(v => v.pageNumber === pageNumber);
+    if (!view) return null;
 
-    const viewport = pageView.viewport;
-    const rect = pageView.div.getBoundingClientRect();
-    
-    // Convert PDF point to viewport point
-    const viewportPoint = viewport.convertToViewportPoint(pdfX, pdfY);
-    
-    return {
-      x: viewportPoint[0] + rect.left,
-      y: viewportPoint[1] + rect.top
-    };
+    const rect = view.wrapper.getBoundingClientRect();
+    const viewport = view.viewport;
+
+    // FIX: Apply viewport scale
+    const screenX = rect.left + pdfX * viewport.scale;
+    const screenY = rect.top + pdfY * viewport.scale;
+
+    return { x: screenX, y: screenY };
   }
 
-  /**
-   * Convert PDF rectangle to screen rectangle
-   */
+  // ------------------------------------------------------------
+  // Convert PDF rectangle → screen rectangle
+  // ------------------------------------------------------------
   pdfRectToScreen(pdfRect, pageNumber) {
-    const topLeft = this.pdfToScreen(pdfRect.x, pdfRect.y, pageNumber);
-    const bottomRight = this.pdfToScreen(
-      pdfRect.x + pdfRect.width, 
-      pdfRect.y + pdfRect.height, 
-      pageNumber
-    );
-    
-    if (!topLeft || !bottomRight) return null;
-    
+    const tl = this.pdfToScreen(pdfRect.x0, pdfRect.y0, pageNumber);
+    const br = this.pdfToScreen(pdfRect.x1, pdfRect.y1, pageNumber);
+
+    if (!tl || !br) return null;
+
     return {
-      x: topLeft.x,
-      y: topLeft.y,
-      width: bottomRight.x - topLeft.x,
-      height: bottomRight.y - topLeft.y
+      x: tl.x,
+      y: tl.y,
+      width: br.x - tl.x,
+      height: br.y - tl.y
     };
   }
 
-  /**
-   * Get viewport scale for current zoom level
-   */
+  // ------------------------------------------------------------
+  // Get current zoom scale
+  // ------------------------------------------------------------
   getScale(pageNumber) {
-    const pageView = this.pdfViewer.getPageView(pageNumber - 1);
-    return pageView ? pageView.viewport.scale : 1;
+    const view = this.pageViews.find(v => v.pageNumber === pageNumber);
+    return view?.viewport.scale || 1;
   }
 }
