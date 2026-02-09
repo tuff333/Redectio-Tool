@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
-// Zoom_Pan.js — Smooth zoom, pan mode, scroll tracking
-// FIXED: Now re-renders redactions after zoom
+// Zoom_Pan.js — Correct zoom + pan with overlay redraw
+// FIXED: Applies viewport.scale to all coordinate math
 // ------------------------------------------------------------
 
 import {
@@ -15,11 +15,11 @@ import {
 } from "./Utils.js";
 
 import { renderAllPages } from "./PDF_Loader.js";
-import { drawRedactionsOnView } from "./Redaction_Core.js";  // ← IMPORT
-import { drawSearchHighlightsOnView } from "./Search.js";     // ← IMPORT
-import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js"; // ← IMPORT
+import { drawRedactionsOnView } from "./Redaction_Core.js";
+import { drawSearchHighlightsOnView } from "./Search.js";
+import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js";
 
-// DOM elements
+// DOM
 const btnZoomIn = document.getElementById("btnZoomIn");
 const btnZoomOut = document.getElementById("btnZoomOut");
 const btnPanMode = document.getElementById("btnPanMode");
@@ -27,9 +27,7 @@ const zoomInfo = document.getElementById("zoomInfo");
 const pageInfo = document.getElementById("pageInfo");
 const pdfScrollContainer = document.querySelector(".pdf-scroll-container");
 
-// ------------------------------------------------------------
-// Zoom configuration
-// ------------------------------------------------------------
+// Zoom limits
 const MIN_ZOOM = 0.25;
 const MAX_ZOOM = 4.0;
 const ZOOM_STEP = 1.1;
@@ -41,11 +39,9 @@ export function initZoomControls() {
   btnZoomIn?.addEventListener("click", () => applyZoom(ZOOM_STEP));
   btnZoomOut?.addEventListener("click", () => applyZoom(1 / ZOOM_STEP));
 
-  // Pan mode toggle
   btnPanMode?.addEventListener("click", () => {
     const newPan = !panMode;
     setPanMode(newPan);
-
     btnPanMode.classList.toggle("btn-toggle-active", newPan);
     pdfScrollContainer.style.cursor = newPan ? "grab" : "default";
   });
@@ -55,43 +51,41 @@ export function initZoomControls() {
 }
 
 // ------------------------------------------------------------
-// applyZoom(multiplier)
-// FIXED: Re-renders redactions after zoom change
+// applyZoom()
+// FIXED: Re-renders overlays using viewport.scale
 // ------------------------------------------------------------
 async function applyZoom(multiplier) {
   const oldZoom = zoom;
   let newZoom = oldZoom * multiplier;
 
-  // Clamp zoom
   newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
   setZoom(newZoom);
 
   zoomInfo.textContent = `${Math.round(newZoom * 100)}%`;
 
-  // Preserve scroll position relative to center
+  // Preserve scroll center
   const rect = pdfScrollContainer.getBoundingClientRect();
   const centerY = pdfScrollContainer.scrollTop + rect.height / 2;
   const scaleFactor = newZoom / oldZoom;
   const newScrollTop = centerY * scaleFactor - rect.height / 2;
 
+  // Re-render PDF pages at new scale
   await renderAllPages();
 
-  // CRITICAL FIX: Re-draw all redaction overlays at new scale
+  // Re-draw overlays at new scale
   redrawAllOverlays();
 
   pdfScrollContainer.scrollTop = newScrollTop;
 }
 
 // ------------------------------------------------------------
-// NEW FUNCTION: Redraw all overlays after zoom
+// Redraw overlays after zoom
 // ------------------------------------------------------------
 function redrawAllOverlays() {
   for (const view of pageViews) {
-    // Clear overlay
     const ctx = view.overlay.getContext("2d");
     ctx.clearRect(0, 0, view.overlay.width, view.overlay.height);
-    
-    // Re-draw everything
+
     drawRedactionsOnView(view);
     drawSearchHighlightsOnView(view);
     drawAutoRedactPreviewOnView(view);
@@ -99,7 +93,7 @@ function redrawAllOverlays() {
 }
 
 // ------------------------------------------------------------
-// Pan Mode Handlers
+// Pan Mode
 // ------------------------------------------------------------
 function initPanHandlers() {
   let isPanning = false;
@@ -140,7 +134,7 @@ function initPanHandlers() {
 }
 
 // ------------------------------------------------------------
-// Track Current Visible Page
+// Scroll tracking
 // ------------------------------------------------------------
 function initScrollTracking() {
   pdfScrollContainer.addEventListener("scroll", () => {
@@ -148,7 +142,7 @@ function initScrollTracking() {
     let bestOffset = Infinity;
 
     for (const view of pageViews) {
-      const rect = view.container.getBoundingClientRect();
+      const rect = view.wrapper.getBoundingClientRect();
       const containerRect = pdfScrollContainer.getBoundingClientRect();
 
       const offset = Math.abs(rect.top - containerRect.top - 50);
