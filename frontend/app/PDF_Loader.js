@@ -18,6 +18,7 @@ import { drawRedactionsOnView } from "./Redaction_Core.js";
 import { drawSearchHighlightsOnView } from "./Search.js";
 import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js";
 import { drawAnnotationsForPage } from "./AnnotationEngine.js";
+import { buildTextLayer } from "./TextLayer.js";
 
 // ------------------------------------------------------------
 // PDF.js worker
@@ -97,6 +98,7 @@ export async function renderPageView(view) {
   const viewport = page.getViewport({ scale: currentZoom });
   view.viewport = viewport;
 
+  // Resize layers
   view.canvas.width = viewport.width;
   view.canvas.height = viewport.height;
 
@@ -106,27 +108,19 @@ export async function renderPageView(view) {
   view.textLayerDiv.style.width = viewport.width + "px";
   view.textLayerDiv.style.height = viewport.height + "px";
 
+  // Render PDF page
   const ctx = view.canvas.getContext("2d");
-
-  // ------------------------------------------------------------
-  // FIX: Wait for PDF render to finish BEFORE drawing annotations
-  // ------------------------------------------------------------
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-  const textContent = await page.getTextContent();
-  pdfjsLib.renderTextLayer({
-    textContent,
-    container: view.textLayerDiv,
-    viewport,
-    textDivs: []
-  });
+  // NEW: Build text layer using your custom builder
+  await buildTextLayer(view, viewport);
 
   // Draw overlays AFTER render completes
   drawRedactionsOnView(view);
   if (highlightMode) drawSearchHighlightsOnView(view);
   drawAutoRedactPreviewOnView(view);
 
-  // NEW: Safe annotation draw
+  // Safe annotation draw
   drawAnnotationsForPage(view.pageNumber);
 }
 
