@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <title>Redectio – COA Redaction Tool</title>
   <link rel="stylesheet" href="styles.css" />
+  <!-- PDF.js --> 
+   <script src="pdfjs/pdf.min.js"></script>
+   <script src="pdfjs/pdf.worker.min.js"></script>
+   <!-- App entry -->
+   <script type="module" src="app.js"></script>
 </head>
 <body>
   <div class="app-root">
@@ -67,7 +72,7 @@
             <section class="panel-section" id="uploadSection">
               <h3 class="section-title">1. Upload Panel</h3>
               <p class="section-subtitle">Select or drop a PDF to begin.</p>
-
+              <div id="appRoot" class="app-root"></div>
               <div id="dropZone" class="dropzone">
                 <input id="fileInput" type="file" accept="application/pdf" class="dropzone-input" />
                 <div class="dropzone-inner">
