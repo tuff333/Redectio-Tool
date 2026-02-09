@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 // FileIO.js — Upload, drag/drop, save PDF, export/import redactions
-// FIXED: Configurable backend URL + frontend fallback
+// FIXED: Click handler and event listeners
 // ------------------------------------------------------------
 
 import {
@@ -20,14 +20,8 @@ import {
   setStatus
 } from "./Utils.js";
 
-import { openPdfFromBytes } from "../app.js";
+import { loadPDF } from "../app.js";
 import { downloadBlob, getRedactedFilename } from "./Utils.js";
-
-// ------------------------------------------------------------
-// CONFIGURATION: Backend URL (changeable)
-// ------------------------------------------------------------
-const BACKEND_URL = "http://127.0.0.1:8000";  // ← Easy to change
-const USE_BACKEND = true;  // ← Set to false for frontend-only mode
 
 // DOM elements
 const dropZone = document.getElementById("dropZone");
@@ -53,30 +47,53 @@ export function initFileIO() {
 
 // ------------------------------------------------------------
 // Upload Handlers (click + drag/drop)
+// FIXED: Added proper click handler and event propagation
 // ------------------------------------------------------------
 function initUploadHandlers() {
-  dropZone?.addEventListener("click", () => fileInput.click());
-
-  fileInput?.addEventListener("change", async e => {
-    const file = e.target.files[0];
-    if (file) await handleFileUpload(file);
+  // FIXED: Direct click on dropzone opens file dialog
+  dropZone?.addEventListener("click", (e) => {
+    // Don't trigger if clicking on buttons inside dropzone
+    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+      return;
+    }
+    console.log("[FileIO] Dropzone clicked, opening file dialog");
+    fileInput?.click();
   });
 
-  dropZone?.addEventListener("dragover", e => {
+  // File input change handler
+  fileInput?.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      console.log("[FileIO] File selected:", file.name);
+      await handleFileUpload(file);
+    }
+  });
+
+  // Drag over
+  dropZone?.addEventListener("dragover", (e) => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.add("dragover");
   });
 
-  dropZone?.addEventListener("dragleave", () => {
+  // Drag leave
+  dropZone?.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.remove("dragover");
   });
 
-  dropZone?.addEventListener("drop", async e => {
+  // Drop
+  dropZone?.addEventListener("drop", async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.remove("dragover");
 
     const file = e.dataTransfer.files[0];
-    if (file) await handleFileUpload(file);
+    if (file) {
+      console.log("[FileIO] File dropped:", file.name);
+      await handleFileUpload(file);
+    }
   });
 }
 
@@ -86,19 +103,32 @@ function initUploadHandlers() {
 async function handleFileUpload(file) {
   if (!file || file.type !== "application/pdf") {
     setStatus("Please upload a valid PDF file.");
+    alert("Please upload a valid PDF file.");
     return;
   }
 
   // Show filename in UI
-  fileNameLabel.textContent = file.name;
+  if (fileNameLabel) {
+    fileNameLabel.textContent = file.name;
+  }
 
-  const bytes = new Uint8Array(await file.arrayBuffer());
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    console.log("[FileIO] PDF loaded, size:", bytes.length, "bytes");
 
-  // Load PDF into viewer
-  await openPdfFromBytes(bytes);
+    // Load PDF into viewer
+    await loadPDF(bytes);
 
-  btnRedact.disabled = false;
-  if (btnSavePdf) btnSavePdf.disabled = false;
+    // Enable buttons
+    if (btnRedact) btnRedact.disabled = false;
+    if (btnSavePdf) btnSavePdf.disabled = false;
+
+    setStatus(`Loaded: ${file.name}`);
+  } catch (err) {
+    console.error("[FileIO] Error loading PDF:", err);
+    setStatus("Error loading PDF");
+    alert("Error loading PDF: " + err.message);
+  }
 }
 
 // ------------------------------------------------------------
@@ -126,11 +156,11 @@ function flattenRedactionsMap(map) {
 
 // ------------------------------------------------------------
 // Save PDF (manual redactions → backend)
-// FIXED: Configurable backend URL + better error handling
 // ------------------------------------------------------------
 export async function applyManualRedactionsAndDownload() {
   if (!pdfBytes) {
     setStatus("Upload a PDF first.");
+    alert("Please upload a PDF first.");
     return;
   }
 
@@ -138,18 +168,11 @@ export async function applyManualRedactionsAndDownload() {
   const flatList = flattenRedactionsMap(redactions);
   if (flatList.length === 0) {
     setStatus("No redactions to apply. Draw some boxes first.");
+    alert("No redactions to apply. Draw some boxes first.");
     return;
   }
 
   setStatus("Applying manual redactions...");
-
-  if (!USE_BACKEND) {
-    // FRONTEND-ONLY FALLBACK: Just export redactions as JSON
-    setStatus("Frontend-only mode: Exporting redactions JSON...");
-    const blob = new Blob([JSON.stringify(redactions, null, 2)], { type: "application/json" });
-    downloadBlob(blob, "redactions.json");
-    return;
-  }
 
   const form = new FormData();
   form.append("file", new Blob([pdfBytes], { type: "application/pdf" }), "file.pdf");
@@ -157,7 +180,7 @@ export async function applyManualRedactionsAndDownload() {
   form.append("scrub_metadata", "true");
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/redact/manual`, {  // ← Use configurable URL
+    const res = await fetch("http://127.0.0.1:8000/api/redact/manual", {
       method: "POST",
       body: form
     });
@@ -166,16 +189,18 @@ export async function applyManualRedactionsAndDownload() {
       const errorText = await res.text();
       console.error("Backend error:", errorText);
       setStatus(`Manual redaction failed: ${res.status}`);
+      alert(`Redaction failed: ${res.status}`);
       return;
     }
 
     const blob = await res.blob();
-    downloadBlob(blob, getRedactedFilename());
+    downloadBlob(blob, getRedactedFilename(fileNameLabel?.textContent || "document.pdf"));
     setStatus("Manual redaction complete.");
 
   } catch (err) {
     console.error(err);
-    setStatus("Manual redaction failed (backend not reachable). Check if backend is running.");
+    setStatus("Manual redaction failed (backend not reachable).");
+    alert("Backend not reachable. Is the server running on port 8000?");
   }
 }
 
@@ -202,10 +227,10 @@ function initExportImportHandlers() {
   });
 
   btnImportRedactions?.addEventListener("click", () => {
-    importRedactionsInput.click();
+    importRedactionsInput?.click();
   });
 
-  importRedactionsInput?.addEventListener("change", async e => {
+  importRedactionsInput?.addEventListener("change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -243,19 +268,6 @@ function initExportImportHandlers() {
   });
 }
 
-async function detectCompany(pdfBytes) {
-  const form = new FormData();
-  form.append("file", new Blob([pdfBytes], { type: "application/pdf" }), "doc.pdf");
-
-  const res = await fetch("/api/detect-company", {
-    method: "POST",
-    body: form
-  });
-
-  const data = await res.json();
-  return data.company_id || null;
-}
-
 // ------------------------------------------------------------
 // Clear Session
 // ------------------------------------------------------------
@@ -266,7 +278,7 @@ function initClearSession() {
     setNumPages(0);
     setPageViews([]);
 
-    // IMPORTANT: reset to map, not list
+    // Reset to map, not list
     setRedactions({});
 
     setAutoRedactSuggestions([]);
@@ -277,8 +289,9 @@ function initClearSession() {
     setHighlightMode(false);
 
     // Clear UI
-    fileNameLabel.textContent = "";
-    document.getElementById("pdfPagesColumn").innerHTML = "";
+    if (fileNameLabel) fileNameLabel.textContent = "";
+    const pdfContainer = document.getElementById("pdfPagesColumn");
+    if (pdfContainer) pdfContainer.innerHTML = "";
     
     setStatus("Session cleared.");
   });
