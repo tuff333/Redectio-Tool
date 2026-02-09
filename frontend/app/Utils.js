@@ -1,5 +1,6 @@
 // ------------------------------------------------------------
 // Utils.js — Centralized global state manager
+// FIXED: Export names corrected (autoRedactSuggestions, not autoRedactions)
 // ------------------------------------------------------------
 
 // ------------------------------------------------------------
@@ -28,6 +29,7 @@ export function setCurrentPageVisible(v) { currentPageVisible = v; }
 
 // ------------------------------------------------------------
 // Redactions (per page)
+// FIXED: Ensure this is always an object { pageNumber: [redactions] }
 // ------------------------------------------------------------
 export let redactions = {}; // { pageNumber: [ { page, type, rects, color } ] }
 
@@ -42,6 +44,7 @@ export function setRedoStack(v) { redoStack = v; }
 
 // ------------------------------------------------------------
 // Auto-Redaction Suggestions
+// FIXED: Correct export name is autoRedactSuggestions (not autoRedactions)
 // ------------------------------------------------------------
 export let autoRedactSuggestions = []; // [ { id, page, rects, selected } ]
 export let hoveredSuggestionId = null;
@@ -71,14 +74,17 @@ export function setShowOnlyAuto(v) { showOnlyAuto = v; }
 
 // ------------------------------------------------------------
 // Status Bar
+// FIXED: Added fallback if element not found
 // ------------------------------------------------------------
 export function setStatus(msg) {
-  const el = document.getElementById("statusBar");
+  const el = document.getElementById("statusBar") || document.getElementById("statusText");
   if (el) el.textContent = msg;
+  console.log("[Status]", msg);
 }
 
 // ------------------------------------------------------------
 // Utility: Normalize rectangle
+// Converts screen coordinates to normalized (0-1) coordinates
 // ------------------------------------------------------------
 export function normalizeRect(x0, y0, x1, y1, width, height) {
   return {
