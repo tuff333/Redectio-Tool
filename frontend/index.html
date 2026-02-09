@@ -5,8 +5,12 @@
   <title>Redectio – COA Redaction Tool</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- PDF.js --> 
-   <script src="pdfjs/pdf.min.js"></script>
-   <script src="pdfjs/pdf.worker.min.js"></script>
+  <script type="module">
+    import * as pdfjsLib from "./pdfjs/pdf.mjs";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.mjs";
+    window.pdfjsLib = pdfjsLib;
+  </script>
+
    <!-- App entry -->
    <script type="module" src="app.js"></script>
 </head>
