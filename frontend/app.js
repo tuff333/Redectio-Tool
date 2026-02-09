@@ -4,9 +4,9 @@
 // ------------------------------------------------------------
 
 // Core modules
-import { initEvents } from "./app/Events.js";
+import { initApp } from "./app/Events.js";
 import { initFileIO } from "./app/FileIO.js";
-import { renderAllPages, openPdfFromBytes } from "./app/PDF_Loader.js";
+import { renderAllPages, loadPDF } from "./app/PDF_Loader.js";
 
 // Redaction modules
 import "./app/Redaction_Core.js";
@@ -17,8 +17,8 @@ import "./app/Redaction_TextSelect.js";
 import "./app/Search.js";
 import "./app/Template_UI.js";
 
-// Make openPdfFromBytes available to FileIO.js
-export { openPdfFromBytes };
+// Make loadPDF available to FileIO.js
+export { loadPDF };
 
 // ------------------------------------------------------------
 // Initialize the app AFTER DOM is ready
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Redectio App Loaded");
 
     // Initialize event handlers
-    initEvents();
+    initApp();
 
     // Initialize upload, drag/drop, save, import/export
     initFileIO();
