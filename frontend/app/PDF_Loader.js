@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// PDF_Loader.js — Stirling‑style viewer with text + overlay layers
+// PDF_Loader.js — Safe PDF rendering with annotation sync
 // ------------------------------------------------------------
 
 import * as pdfjsLib from "../pdfjs/pdf.mjs";
@@ -17,6 +17,7 @@ import {
 import { drawRedactionsOnView } from "./Redaction_Core.js";
 import { drawSearchHighlightsOnView } from "./Search.js";
 import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js";
+import { drawAnnotationsForPage } from "./AnnotationEngine.js";
 
 // ------------------------------------------------------------
 // PDF.js worker
@@ -51,15 +52,12 @@ function createPageView(page, viewport, pageNum) {
   wrapper.className = "page-container";
   wrapper.dataset.pageNumber = pageNum;
 
-  // Canvas layer (PDF rendering)
   const canvas = document.createElement("canvas");
   canvas.className = "pdf-canvas";
 
-  // Text layer (real selectable text)
   const textLayerDiv = document.createElement("div");
   textLayerDiv.className = "text-layer";
 
-  // Overlay layer (redactions, search, auto)
   const overlay = document.createElement("canvas");
   overlay.className = "overlay-canvas";
 
@@ -68,7 +66,6 @@ function createPageView(page, viewport, pageNum) {
   wrapper.appendChild(overlay);
   container.appendChild(wrapper);
 
-  // Size canvases
   canvas.width = viewport.width;
   canvas.height = viewport.height;
 
@@ -80,8 +77,8 @@ function createPageView(page, viewport, pageNum) {
     page,
     canvas,
     textLayerDiv,
-    overlay,          // ← canonical overlay
-    overlayCanvas: overlay, // ← backward‑compat alias
+    overlay,
+    overlayCanvas: overlay,
     wrapper,
     viewport
   };
@@ -100,7 +97,6 @@ export async function renderPageView(view) {
   const viewport = page.getViewport({ scale: currentZoom });
   view.viewport = viewport;
 
-  // Resize layers
   view.canvas.width = viewport.width;
   view.canvas.height = viewport.height;
 
@@ -110,11 +106,13 @@ export async function renderPageView(view) {
   view.textLayerDiv.style.width = viewport.width + "px";
   view.textLayerDiv.style.height = viewport.height + "px";
 
-  // Render PDF page
   const ctx = view.canvas.getContext("2d");
+
+  // ------------------------------------------------------------
+  // FIX: Wait for PDF render to finish BEFORE drawing annotations
+  // ------------------------------------------------------------
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-  // Render text layer
   const textContent = await page.getTextContent();
   pdfjsLib.renderTextLayer({
     textContent,
@@ -123,10 +121,13 @@ export async function renderPageView(view) {
     textDivs: []
   });
 
-  // Draw overlays
+  // Draw overlays AFTER render completes
   drawRedactionsOnView(view);
   if (highlightMode) drawSearchHighlightsOnView(view);
   drawAutoRedactPreviewOnView(view);
+
+  // NEW: Safe annotation draw
+  drawAnnotationsForPage(view.pageNumber);
 }
 
 // ------------------------------------------------------------
@@ -149,7 +150,6 @@ export async function renderAllPages() {
 
     const view = createPageView(page, viewport, pageNum);
 
-    // Render page + layers
     await renderPageView(view);
 
     views.push(view);
@@ -157,6 +157,5 @@ export async function renderAllPages() {
 
   setPageViews(views);
 
-  // Let listeners (Events.js) re‑attach handlers
   document.dispatchEvent(new CustomEvent("pages-rendered"));
 }
