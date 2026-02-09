@@ -4,12 +4,13 @@
 
 import {
   setStatus,
-  templateData,
-  setTemplateData,
   pageViews
 } from "./Utils.js";
 
 import { renderPageView } from "./PDF_Loader.js";
+
+// Local store for template data (replaces missing Utils.js export)
+let currentTemplate = null;
 
 // ------------------------------------------------------------
 // Fetch template for detected company
@@ -24,7 +25,7 @@ export async function loadTemplateForCompany(companyId) {
     const res = await fetch(`/api/templates/${companyId}`);
     const data = await res.json();
 
-    setTemplateData(data);
+    currentTemplate = data; // ← FIXED: store locally
     renderTemplateSidebar(data);
 
     applyManualPresets(data);
@@ -110,9 +111,9 @@ function attachRuleToggleHandlers() {
       const ruleId = toggle.dataset.rule;
       const enabled = toggle.checked;
 
-      if (!templateData) return;
+      if (!currentTemplate) return; // ← FIXED
 
-      const rule = templateData.rules.find((r) => r.id === ruleId);
+      const rule = currentTemplate.rules.find((r) => r.id === ruleId);
       if (rule) rule.enabled = enabled;
 
       setStatus(`Rule ${ruleId} ${enabled ? "enabled" : "disabled"}.`);
