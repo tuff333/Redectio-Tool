@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// Events.js — Central event wiring for Stirling‑style viewer
+// Events.js — Central event wiring with SAFE cleanup
 // ------------------------------------------------------------
 
 import {
@@ -56,18 +56,47 @@ const btnUndo = document.getElementById("btnUndo");
 const btnRedo = document.getElementById("btnRedo");
 
 // ------------------------------------------------------------
-// Attach handlers to every page view (Stirling‑style)
+// GLOBAL LISTENER REGISTRY (NEW)
+// ------------------------------------------------------------
+let registeredListeners = [];
+
+/**
+ * Register a listener so we can remove it later
+ */
+function addListener(target, event, handler) {
+  target.addEventListener(event, handler);
+  registeredListeners.push({ target, event, handler });
+}
+
+/**
+ * Remove all previously registered listeners
+ */
+function cleanupListeners() {
+  for (const { target, event, handler } of registeredListeners) {
+    target.removeEventListener(event, handler);
+  }
+  registeredListeners = [];
+}
+
+// ------------------------------------------------------------
+// Attach handlers to every page view (SAFE)
 // ------------------------------------------------------------
 function attachHandlersToAllPages() {
+  cleanupListeners(); // ← CRITICAL FIX
+
   for (const view of pageViews) {
-    // Box redaction on overlay canvas
-    attachBoxRedactionHandlers(view.overlay, view);
+    // Box redaction
+    addListener(view.overlay, "mousedown", e =>
+      attachBoxRedactionHandlers(view.overlay, view, e)
+    );
 
-    // Text selection on text layer
-    attachTextSelectionHandlers(view.textLayerDiv, view);
+    // Text selection
+    addListener(view.textLayerDiv, "mousedown", e =>
+      attachTextSelectionHandlers(view.textLayerDiv, view, e)
+    );
 
-    // Auto‑redaction hover/click on overlay
-    attachAutoRedactionHandlers(view);
+    // Auto‑redaction hover/click
+    attachAutoRedactionHandlers(view, addListener);
   }
 }
 
@@ -75,43 +104,37 @@ function attachHandlersToAllPages() {
 // Search controls
 // ------------------------------------------------------------
 function initSearchControls() {
-  btnSearchPrev?.addEventListener("click", () => {
+  addListener(btnSearchPrev, "click", () => {
     if (!searchResults.length) return;
-
     const newIndex =
       (searchIndex - 1 + searchResults.length) % searchResults.length;
     setSearchIndex(newIndex);
-
     updateSearchInfo();
     scrollToSearchResult(searchResults[newIndex]);
   });
 
-  btnSearchNext?.addEventListener("click", () => {
+  addListener(btnSearchNext, "click", () => {
     if (!searchResults.length) return;
-
     const newIndex = (searchIndex + 1) % searchResults.length;
     setSearchIndex(newIndex);
-
     updateSearchInfo();
     scrollToSearchResult(searchResults[newIndex]);
   });
 
-  btnToggleHighlight?.addEventListener("click", async () => {
+  addListener(btnToggleHighlight, "click", async () => {
     setHighlightMode(!highlightMode);
     await renderAllPages();
   });
 
-  btnSearchRedactAll?.addEventListener("click", async () => {
+  addListener(btnSearchRedactAll, "click", async () => {
     if (!searchResults.length) return;
 
     pushUndo();
-
     const newRedactions = structuredClone(redactions);
 
     for (const r of searchResults) {
       const page = r.page;
       if (!newRedactions[page]) newRedactions[page] = [];
-
       newRedactions[page].push({
         page,
         type: "search",
@@ -129,19 +152,19 @@ function initSearchControls() {
 // Auto‑redaction controls
 // ------------------------------------------------------------
 function initAutoRedactionControls() {
-  btnAutoPatterns?.addEventListener("click", () =>
+  addListener(btnAutoPatterns, "click", () =>
     runAutoRedact("/api/redact/auto-suggest")
   );
 
-  btnAutoOCR?.addEventListener("click", () =>
+  addListener(btnAutoOCR, "click", () =>
     runAutoRedact("/api/redact/auto-suggest-ocr")
   );
 
-  btnAutoApply?.addEventListener("click", async () => {
+  addListener(btnAutoApply, "click", async () => {
     await applyAutoRedactions();
   });
 
-  btnAutoClear?.addEventListener("click", async () => {
+  addListener(btnAutoClear, "click", async () => {
     await clearAutoRedactions();
   });
 }
@@ -150,12 +173,12 @@ function initAutoRedactionControls() {
 // Review mode controls
 // ------------------------------------------------------------
 function initReviewModeControls() {
-  btnReviewMode?.addEventListener("click", () => {
+  addListener(btnReviewMode, "click", () => {
     toggleReviewMode();
     renderAllPages();
   });
 
-  btnShowOnlyAuto?.addEventListener("click", () => {
+  addListener(btnShowOnlyAuto, "click", () => {
     toggleShowOnlyAuto();
     renderAllPages();
   });
@@ -165,25 +188,20 @@ function initReviewModeControls() {
 // Undo / Redo
 // ------------------------------------------------------------
 function initUndoRedoControls() {
-  btnUndo?.addEventListener("click", () => {
-    restoreState(undoStack, redoStack);
-  });
-
-  btnRedo?.addEventListener("click", () => {
-    restoreState(redoStack, undoStack);
-  });
+  addListener(btnUndo, "click", () => restoreState(undoStack, redoStack));
+  addListener(btnRedo, "click", () => restoreState(redoStack, undoStack));
 }
 
 // ------------------------------------------------------------
 // Redaction mode toggles
 // ------------------------------------------------------------
 function initRedactionModeControls() {
-  btnModeSelectText?.addEventListener("click", () => {
+  addListener(btnModeSelectText, "click", () => {
     btnModeSelectText.classList.add("btn-toggle-active");
     btnModeDrawBox.classList.remove("btn-toggle-active");
   });
 
-  btnModeDrawBox?.addEventListener("click", () => {
+  addListener(btnModeDrawBox, "click", () => {
     btnModeDrawBox.classList.add("btn-toggle-active");
     btnModeSelectText.classList.remove("btn-toggle-active");
   });
@@ -202,7 +220,7 @@ export function initApp() {
   initRedactionModeControls();
 
   // Attach handlers after initial load
-  document.addEventListener("pdf-loaded", () => {
+  addListener(document, "pdf-loaded", () => {
     attachHandlersToAllPages();
 
     const pageInfo = document.getElementById("pageInfo");
@@ -212,7 +230,7 @@ export function initApp() {
   });
 
   // Re‑attach handlers after any full re‑render (zoom, search, undo/redo)
-  document.addEventListener("pages-rendered", () => {
+  addListener(document, "pages-rendered", () => {
     attachHandlersToAllPages();
   });
 }
