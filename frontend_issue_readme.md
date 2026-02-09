@@ -4,9 +4,7 @@ _Last updated: Feb 2026_
 
 This document lists **every frontend file**, its **status**, **issues**, **required fixes**, and **severity**.  
 Use this as the master reference for stabilizing the frontend.
-
 ---
-
 # 🔥 CRITICAL / BROKEN COMPONENTS  
 These must be fixed first. They directly break core functionality.
 
@@ -90,4 +88,5 @@ These files are stable and require no changes (except minor notes).
 
 # ✔ After Frontend Fixes  
 We will run a **backend audit** (same format) once you share all backend files.
+
 
