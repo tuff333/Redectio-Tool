@@ -55,22 +55,16 @@ const btnUndo = document.getElementById("btnUndo");
 const btnRedo = document.getElementById("btnRedo");
 
 // ------------------------------------------------------------
-// GLOBAL LISTENER REGISTRY (NEW)
+// GLOBAL LISTENER REGISTRY (SAFE)
 // ------------------------------------------------------------
 let registeredListeners = [];
 
-/**
- * Register a listener so we can remove it later
- */
 function addListener(target, event, handler) {
   if (!target) return;
   target.addEventListener(event, handler);
   registeredListeners.push({ target, event, handler });
 }
 
-/**
- * Remove all previously registered listeners
- */
 function cleanupListeners() {
   for (const { target, event, handler } of registeredListeners) {
     target.removeEventListener(event, handler);
@@ -79,10 +73,10 @@ function cleanupListeners() {
 }
 
 // ------------------------------------------------------------
-// Attach handlers to every page view (SAFE)
+// Attach handlers to every page view (FIXED)
 // ------------------------------------------------------------
 function attachHandlersToAllPages() {
-  cleanupListeners(); // ← CRITICAL FIX
+  cleanupListeners(); // ← CRITICAL FIX: prevents duplicate handlers
 
   for (const view of pageViews) {
     if (!view) continue;
@@ -97,7 +91,7 @@ function attachHandlersToAllPages() {
       attachTextSelectionHandlers(view.textLayerDiv, view, e)
     );
 
-    // Auto‑redaction hover/click
+    // Auto‑redaction hover/click (FIXED: now uses addListener registry)
     attachAutoRedactionHandlers(view, addListener);
   }
 }
@@ -213,7 +207,8 @@ function initRedactionModeControls() {
 // initApp()
 // ------------------------------------------------------------
 export function initApp() {
-  initFileIO();
+  initFileIO(); // ← FIX: only called once
+
   initSearchControls();
   initAutoRedactionControls();
   initReviewModeControls();
@@ -231,7 +226,12 @@ export function initApp() {
   });
 
   // Re‑attach handlers after any full re‑render (zoom, search, undo/redo)
-  addListener(document, "pages-rendered", () => {
-    attachHandlersToAllPages();
-  });
+addListener(document, "pages-rendered", () => {
+  attachHandlersToAllPages();
+
+  const pageInfo = document.getElementById("pageInfo");
+  if (pageInfo && window.__PDF_DOC) {
+    pageInfo.textContent = `Page 1 / ${window.__PDF_DOC.numPages}`;
+  }
+});
 }
