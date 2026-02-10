@@ -1,0 +1,32 @@
+{
+  "company_id": "greenleaf",
+  "display_name": "Greenleaf",
+  "version": "1.0",
+  "notes": "Empty template placeholder. Add rules as needed.",
+
+  "keywords": [
+    "greenleaf",
+    "green leaf",
+    "greenleaf corp",
+    "greenleaf company"
+  ],
+
+  "manual_presets": {
+    "default_color": "#000000",
+    "default_mode": "black",
+    "default_annotation": "box"
+  },
+
+  "rules": [
+    {
+      "id": "GENERIC_EMAIL",
+      "type": "regex",
+      "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "flags": "i",
+      "color": "#000000",
+      "mode": "black"
+    }
+  ],
+
+  "zones": []
+}
