@@ -1,0 +1,35 @@
+/* ---------- Viewer panel (PDF.js) ---------- */
+.viewer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+}
+
+.pdf-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #020617;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 16px 0;
+}
+
+/* Scrollbar Customization */
+.pdf-scroll-container::-webkit-scrollbar { width: 8px; }
+.pdf-scroll-container::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 999px;
+}
+
+/* Responsive Overrides */
+@media (max-width: 1100px) {
+  .workspace { grid-template-columns: 1fr; }
+  .left-panel { order: 2; }
+  .viewer-panel { order: 1; min-height: 360px; }
+}

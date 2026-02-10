@@ -1,0 +1,26 @@
+/* Import variables first so other files can use them */
+/* 1. Core Config */
+@import url('parts/variables.css');
+@import url('parts/layout.css');
+
+/* 2. Components (Buttons, Badges) */
+@import url('parts/components.css');
+@import url('parts/inputs.css');
+
+/* Layout parts */
+@import url('parts/header.css');
+@import url('parts/footer.css');
+
+/* 3. Regions/Sections */
+@import url('parts/sidebar.css');
+@import url('parts/topbar.css');
+@import url('parts/workspace.css');
+@import url('parts/viewer.css');
+
+/* Component parts */
+@import url('parts/buttons.css');
+
+/* You can still write general styles here if you want */
+body {
+    font-family: sans-serif;
+}
