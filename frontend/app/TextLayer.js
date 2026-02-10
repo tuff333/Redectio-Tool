@@ -89,3 +89,12 @@ export async function buildTextLayer(view, viewport) {
 
   textLayerDiv.style.pointerEvents = "none";
 }
+
+// ------------------------------------------------------------
+// clearTextStore() — reset all stored text for new PDF loads
+// ------------------------------------------------------------
+export function clearTextStore() {
+  for (const key in textStore) {
+    delete textStore[key];
+  }
+}
