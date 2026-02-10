@@ -1,6 +1,12 @@
 // ------------------------------------------------------------
 // PDF_Loader.js — Safe PDF rendering with annotation sync
+// FIXED: worker conflict, missing pdf-init import, textStore reset,
+//        unified overlay drawing (no AnnotationEngine conflict)
 // ------------------------------------------------------------
+
+// IMPORTANT: pdf-init sets the workerSrc safely.
+// DO NOT set workerSrc here.
+import "../pdfjs/pdf-init.js";
 
 import * as pdfjsLib from "../pdfjs/pdf.mjs";
 
@@ -17,19 +23,16 @@ import {
 import { drawRedactionsOnView } from "./Redaction_Core.js";
 import { drawSearchHighlightsOnView } from "./Search.js";
 import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js";
-import { drawAnnotationsForPage } from "./AnnotationEngine.js";
-import { buildTextLayer } from "./TextLayer.js";
-
-// ------------------------------------------------------------
-// PDF.js worker
-// ------------------------------------------------------------
-pdfjsLib.GlobalWorkerOptions.workerSrc = "../pdfjs/pdf.worker.mjs";
+import { buildTextLayer, clearTextStore } from "./TextLayer.js";
 
 // ------------------------------------------------------------
 // loadPDF(pdfBytes)
 // ------------------------------------------------------------
 export async function loadPDF(pdfBytes) {
   setPdfBytes(pdfBytes);
+
+  // FIXED: clear textStore before loading a new PDF
+  clearTextStore();
 
   const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
   const pdf = await loadingTask.promise;
@@ -112,16 +115,16 @@ export async function renderPageView(view) {
   const ctx = view.canvas.getContext("2d");
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-  // NEW: Build text layer using your custom builder
+  // Build text layer
   await buildTextLayer(view, viewport);
 
-  // Draw overlays AFTER render completes
+  // ------------------------------------------------------------
+  // Unified overlay drawing (FIXED)
+  // Removed AnnotationEngine to prevent double overlays
+  // ------------------------------------------------------------
   drawRedactionsOnView(view);
   if (highlightMode) drawSearchHighlightsOnView(view);
   drawAutoRedactPreviewOnView(view);
-
-  // Safe annotation draw
-  drawAnnotationsForPage(view.pageNumber);
 }
 
 // ------------------------------------------------------------
@@ -133,6 +136,9 @@ export async function renderAllPages() {
 
   const container = document.getElementById("pdfPagesColumn");
   container.innerHTML = "";
+
+  // FIXED: clear textStore before full re-render
+  clearTextStore();
 
   const views = [];
 
