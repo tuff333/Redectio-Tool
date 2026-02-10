@@ -1,6 +1,6 @@
 // ------------------------------------------------------------
 // Redaction_Box.js — Pixel-perfect box drawing redaction tool
-// FIXED: Y-coordinate inversion (PDF y=0 is at BOTTOM, not TOP)
+// FIXED: Normalization uses viewport (correct source of truth)
 // ------------------------------------------------------------
 
 import {
@@ -9,15 +9,13 @@ import {
   setRedactions
 } from "./Utils.js";
 
-import { normalizeRect } from "./Utils.js";
 import { pushUndo } from "./Redaction_Core.js";
 import { renderPageView } from "./PDF_Loader.js";
 
 // ------------------------------------------------------------
 // attachBoxRedactionHandlers(view)
 // ------------------------------------------------------------
-export function attachBoxRedactionHandlers(view) {
-  const overlay = view.overlay;
+export function attachBoxRedactionHandlers(overlay, view) {
 
   let drawing = false;
   let startX = 0;
@@ -71,8 +69,8 @@ export function attachBoxRedactionHandlers(view) {
 
   // -----------------------------
   // Mouseup → finalize redaction
-  // FIXED: Invert Y coordinates (PDF y=0 is at BOTTOM, screen y=0 is at TOP)
-  // -----------------------------
+  // FIXED: Normalize using viewport (not overlay)
+// ------------------------------------------------------------
   overlay.addEventListener("mouseup", e => {
     if (!drawing) return;
     drawing = false;
@@ -88,18 +86,20 @@ export function attachBoxRedactionHandlers(view) {
       return;
     }
 
-    // FIXED: Normalize coordinates with Y-INVERSION
-    // PDF coordinates: x=0 is left, y=0 is BOTTOM
-    // Screen coordinates: x=0 is left, y=0 is TOP
-    
-    const normX0 = Math.min(startX, endX) / overlay.width;
-    const normX1 = Math.max(startX, endX) / overlay.width;
-    
-    // CRITICAL FIX: Flip Y coordinates (1 - y) because PDF y=0 is at bottom
-    const normY0 = 1 - (Math.max(startY, endY) / overlay.height);
-    const normY1 = 1 - (Math.min(startY, endY) / overlay.height);
+    // ------------------------------------------------------------
+    // FIXED NORMALIZATION
+    // Use viewport.width / viewport.height (correct scaling)
+    // ------------------------------------------------------------
+    const vw = view.viewport.width;
+    const vh = view.viewport.height;
 
-    // Create normalized rect
+    const normX0 = Math.min(startX, endX) / vw;
+    const normX1 = Math.max(startX, endX) / vw;
+
+    // PDF y=0 bottom → invert Y
+    const normY0 = 1 - (Math.max(startY, endY) / vh);
+    const normY1 = 1 - (Math.min(startY, endY) / vh);
+
     const norm = {
       x0: normX0,
       y0: normY0,
