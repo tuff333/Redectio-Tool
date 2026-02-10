@@ -1,0 +1,19 @@
+# Redectio – Frontend/Backend Issue Tracker  
+_Last updated: Feb 10, 2026_
+
+| ID | Issue Title | Category | Severity | Symptoms | Root‑Cause Hypothesis | Notes for Future Debugging | Status | Priority | Dependencies |
+|----|-------------|----------|----------|----------|------------------------|-----------------------------|--------|----------|--------------|
+| 1 | `pdf.worker.mjs` 404 | PDF.js / Build | High | Console shows `GET /pdf.worker.mjs 404`, fake worker warning | Server is serving wrong root directory OR stale cached HTML still referencing old worker path | Confirm server root; ensure only one PDF.js block; verify `/pdfjs/pdf.worker.mjs` loads directly | ❌ Unresolved | 🔥 Critical | Correct server root |
+| 2 | File picker opens twice | Events / FileIO | High | Clicking dropzone opens two file dialogs | `initFileIO()` called twice OR duplicate event listeners still attached | Verify Events.js cleanup; ensure app.js does NOT import FileIO.js; ensure only one call to initApp() | ❌ Unresolved | 🔥 Critical | Fix event wiring |
+| 3 | Search text not working | Search.js / TextLayer | High | No matches, no highlight, no scroll | TextLayer not rendering, textStore empty, or searchIndex not updating | Confirm textLayer opacity=0 not display:none; ensure text extraction runs; verify PDF.js textContent loaded | ❌ Unresolved | 🔥 Critical | Fix TextLayer.js |
+| 4 | Highlight mode not working | Search.js | Medium | Clicking “Highlight Mode” does nothing | highlightMode flag not triggering re-render OR textLayer not present | Check renderAllPages(); verify highlight overlay canvas | ❌ Unresolved | High | Fix search first |
+| 5 | Select text not working | Redaction_TextSelect.js | High | Dragging on text layer does nothing | textLayerDiv not aligned OR event listeners not attached OR textStore empty | Confirm Events.js attaches handlers directly (not wrapped); verify CSS alignment | ❌ Unresolved | 🔥 Critical | Fix text layer |
+| 6 | Box redaction placed at wrong position | Redaction_Box.js / CSS | High | Box drawn at top appears at bottom | Overlay canvas misaligned OR viewport normalization wrong OR CSS scaling canvas | Ensure `.pdf-canvas` has no width:100%; ensure overlay matches viewport size | ❌ Unresolved | 🔥 Critical | Fix viewer CSS |
+| 7 | Undo/Redo working | Redaction_Core.js | Low | Works correctly | — | Keep as reference for stable modules | ✅ Working | Low | None |
+| 8 | Remove Auto‑Redaction UI | UI Cleanup | Low | You want to hide “Apply Suggestions” and “Clear Suggestions” | Remove from HTML or hide via CSS | Simple UI cleanup | ⏳ Pending | Medium | None |
+| 9 | Template Redaction not working | Template Engine | Medium | Buttons do nothing | Feature not implemented OR missing backend endpoints | Decide whether to remove or implement | ❌ Unresolved | Low | Backend |
+| 10 | Page Redaction not working | Redaction_Core.js | Medium | Button does nothing | Missing implementation | Decide whether to remove or implement | ❌ Unresolved | Low | Backend |
+| 11 | Redaction Map working | Redaction Export/Import | Low | JSON export/import works | — | Stable module | ✅ Working | Low | None |
+| 12 | Redaction Color working | UI | Low | Color picker works | — | Stable module | ✅ Working | Low | None |
+| 13 | Review Mode not working | Review_Mode.js | Medium | Toggle does nothing | reviewMode flag not triggering re-render | Check renderAllPages(); verify overlay respects reviewMode | ❌ Unresolved | Medium | Fix redaction rendering |
+| 14 | Manual Redaction → Backend not reachable | Backend / Networking | High | “Backend not reachable. Is the server running on port 8000?” | CORS issue OR wrong URL OR server not receiving request | Check FastAPI logs; verify endpoint `/api/redact/manual` | ❌ Unresolved | 🔥 Critical | Backend |
