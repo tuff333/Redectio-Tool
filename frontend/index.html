@@ -3,18 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <title>Redectio – COA Redaction Tool</title>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css">
-  <!--<link rel="stylesheet" href="css/style.css">-->
-  <!-- PDF.js --> 
-  <script type="module">
+
+  <!-- PDF.js Worker Setup (ONLY ONE BLOCK) -->
+  <!--<script type="module">
     import * as pdfjsLib from "./pdfjs/pdf.mjs";
     pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.mjs";
     window.pdfjsLib = pdfjsLib;
-  </script>
+  </script>-->
+  <!-- PDF.js Worker Setup (CDN version) -->
+  <!--<script type="module">
+    import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.624/pdf.mjs";
 
-   <!-- App entry -->
-   <script type="module" src="app.js"></script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.624/pdf.worker.mjs";
+
+    window.pdfjsLib = pdfjsLib;
+  </script>-->
+
+
+  <!-- App entry -->
+  <script type="module" src="app.js"></script>
 </head>
+
 <body>
   <div class="app-root">
     <!-- Sidebar -->
@@ -44,9 +57,7 @@
 
       <div class="sidebar-footer">
         <div class="footer-title">Templates</div>
-        <ul id="templateList" class="template-list">
-          <!-- Filled by Template_UI.js -->
-        </ul>
+        <ul id="templateList" class="template-list"></ul>
         <div class="template-footer-actions">
           <button id="btnSaveTemplate" class="btn btn-ghost btn-small">Save Template</button>
           <button id="btnLoadTemplate" class="btn btn-ghost btn-small">Refresh Templates</button>
@@ -69,15 +80,15 @@
 
       <!-- Content -->
       <main class="content">
-        <!-- Left panel (4 sections) + Right viewer -->
         <div class="workspace">
           <!-- LEFT PANEL -->
           <aside class="left-panel">
+
             <!-- 1. Upload Panel -->
             <section class="panel-section" id="uploadSection">
               <h3 class="section-title">1. Upload Panel</h3>
               <p class="section-subtitle">Select or drop a PDF to begin.</p>
-              <div id="appRoot" class="app-root"></div>
+
               <div id="dropZone" class="dropzone">
                 <input id="fileInput" type="file" accept="application/pdf" class="dropzone-input" />
                 <div class="dropzone-inner">
@@ -103,12 +114,7 @@
 
               <label class="field-label" for="searchInput">Search text</label>
               <div class="search-row">
-                <input
-                  id="searchInput"
-                  class="input-text"
-                  type="text"
-                  placeholder="Search in document..."
-                />
+                <input id="searchInput" class="input-text" type="text" placeholder="Search in document..." />
               </div>
 
               <div class="inline-row">
@@ -118,15 +124,11 @@
               </div>
 
               <div class="inline-row">
-                <button id="btnSearchRedactAll" class="btn btn-ghost btn-small">
-                  Redact All Matches
-                </button>
+                <button id="btnSearchRedactAll" class="btn btn-ghost btn-small">Redact All Matches</button>
               </div>
 
               <div class="inline-row">
-                <button id="btnToggleHighlight" class="btn btn-ghost btn-small">
-                  Highlight Mode
-                </button>
+                <button id="btnToggleHighlight" class="btn btn-ghost btn-small">Highlight Mode</button>
               </div>
             </section>
 
@@ -137,12 +139,8 @@
 
               <div class="field-label">Redaction mode</div>
               <div class="btn-row">
-                <button id="btnModeSelectText" class="btn btn-toggle btn-small">
-                  Text Selection
-                </button>
-                <button id="btnModeDrawBox" class="btn btn-toggle btn-small btn-toggle-active">
-                  Box Redaction
-                </button>
+                <button id="btnModeSelectText" class="btn btn-toggle btn-small">Text Selection</button>
+                <button id="btnModeDrawBox" class="btn btn-toggle btn-small btn-toggle-active">Box Redaction</button>
               </div>
 
               <div class="inline-row">
@@ -152,13 +150,7 @@
 
               <div class="field-label">Auto‑Redaction</div>
               <div class="dropdown">
-                <button
-                  id="btnAutoRedactMenu"
-                  class="btn btn-primary btn-small dropdown-toggle"
-                  type="button"
-                >
-                  Auto‑Redact ▼
-                </button>
+                <button id="btnAutoRedactMenu" class="btn btn-primary btn-small dropdown-toggle">Auto‑Redact ▼</button>
                 <div id="autoRedactDropdown" class="dropdown-menu hidden">
                   <button id="btnAutoTemplate" class="dropdown-item">Template Auto‑Redact</button>
                   <button id="btnAutoPatterns" class="dropdown-item">Pattern Auto‑Redact</button>
@@ -167,42 +159,25 @@
               </div>
 
               <div class="inline-row">
-                <button id="btnAutoApply" class="btn btn-ghost btn-small" disabled>
-                  Apply Suggestions
-                </button>
-                <button id="btnAutoClear" class="btn btn-ghost btn-small" disabled>
-                  Clear Suggestions
-                </button>
+                <button id="btnAutoApply" class="btn btn-ghost btn-small" disabled>Apply Suggestions</button>
+                <button id="btnAutoClear" class="btn btn-ghost btn-small" disabled>Clear Suggestions</button>
               </div>
 
               <div class="field-label">Template Redaction</div>
               <div class="btn-row">
-                <button id="btnApplyTemplateRedact" class="btn btn-ghost btn-small">
-                  Apply Template Redaction
-                </button>
+                <button id="btnApplyTemplateRedact" class="btn btn-ghost btn-small">Apply Template Redaction</button>
               </div>
 
               <div class="field-label">Page Redaction</div>
               <div class="btn-row">
-                <button id="btnRedactCurrentPage" class="btn btn-ghost btn-small">
-                  Redact Current Page
-                </button>
+                <button id="btnRedactCurrentPage" class="btn btn-ghost btn-small">Redact Current Page</button>
               </div>
 
               <div class="field-label">Redaction Map</div>
               <div class="btn-row">
-                <button id="btnExportRedactions" class="btn btn-ghost btn-small">
-                  Export JSON
-                </button>
-                <button id="btnImportRedactions" class="btn btn-ghost btn-small">
-                  Import JSON
-                </button>
-                <input
-                  id="importRedactionsInput"
-                  type="file"
-                  accept="application/json"
-                  class="hidden-input"
-                />
+                <button id="btnExportRedactions" class="btn btn-ghost btn-small">Export JSON</button>
+                <button id="btnImportRedactions" class="btn btn-ghost btn-small">Import JSON</button>
+                <input id="importRedactionsInput" type="file" accept="application/json" class="hidden-input" />
               </div>
 
               <div class="field-label">Redaction Color</div>
@@ -213,12 +188,8 @@
 
               <div class="field-label">Review Mode</div>
               <div class="btn-row">
-                <button id="btnReviewMode" class="btn btn-ghost btn-small">
-                  Toggle Review Mode
-                </button>
-                <button id="btnShowOnlyAuto" class="btn btn-ghost btn-small">
-                  Show Only Auto
-                </button>
+                <button id="btnReviewMode" class="btn btn-ghost btn-small">Toggle Review Mode</button>
+                <button id="btnShowOnlyAuto" class="btn btn-ghost btn-small">Show Only Auto</button>
               </div>
             </section>
           </aside>
@@ -231,15 +202,12 @@
             </div>
 
             <div class="pdf-scroll-container">
-              <div id="pdfPagesColumn" class="pdf-pages-column">
-                <!-- Pages injected by app.js -->
-              </div>
+              <div id="pdfPagesColumn" class="pdf-pages-column"></div>
             </div>
           </section>
         </div>
       </main>
     </div>
   </div>
-
 </body>
 </html>
