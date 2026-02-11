@@ -6,9 +6,11 @@
 
 // IMPORTANT: pdf-init sets the workerSrc safely.
 // DO NOT set workerSrc here.
-import "../pdfjs/pdf-init.js";
+const pdfjsLib = window.pdfjsLib;
 
-import * as pdfjsLib from "../pdfjs/pdf.mjs";
+//import "../css/pdf-init.js";
+
+//import * as pdfjsLib from "../pdfjs/pdf.mjs";
 
 import {
   setPdfDoc,
