@@ -4,9 +4,11 @@
 // ------------------------------------------------------------
 
 // Core modules
+import "./pdfjs/pdf-init.js";
 import { initApp } from "./app/Events.js";
-import { initFileIO } from "./app/FileIO.js";
-import { renderAllPages, loadPDF } from "./app/PDF_Loader.js";
+import { loadPDF } from "./app/PDF_Loader.js"; // ← correct import
+//import { initFileIO } from "./app/FileIO.js"; // imported but NOT called here
+//import { renderAllPages, loadPDF } from "./app/PDF_Loader.js";
 
 // Redaction modules
 import "./app/Redaction_Core.js";
@@ -24,13 +26,13 @@ export { loadPDF };
 // Initialize the app AFTER DOM is ready
 // ------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Redectio App Loaded");
+  console.log("Redectio App Loaded");
 
-    // Initialize event handlers
-    initApp();
+  // Initialize event handlers + FileIO (initApp internally calls initFileIO)
+  initApp();
 
-    // Initialize upload, drag/drop, save, import/export
-    initFileIO();
-
-    // PDF viewer will render pages when a PDF is loaded
+  // IMPORTANT:
+  // Do NOT call initFileIO() here, because initApp() already calls it.
+  // Calling it twice causes duplicate handlers and double file picker.
+  // initFileIO();
 });
