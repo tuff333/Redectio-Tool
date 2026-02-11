@@ -1,5 +1,5 @@
 // ------------------------------------------------------------
-// Events.js — Central event wiring with SAFE cleanup
+// Events.js — Central event wiring
 // ------------------------------------------------------------
 
 import {
@@ -55,7 +55,7 @@ const btnUndo = document.getElementById("btnUndo");
 const btnRedo = document.getElementById("btnRedo");
 
 // ------------------------------------------------------------
-// GLOBAL LISTENER REGISTRY (SAFE)
+// GLOBAL LISTENER REGISTRY (for buttons / document events)
 // ------------------------------------------------------------
 let registeredListeners = [];
 
@@ -72,26 +72,25 @@ function cleanupListeners() {
   registeredListeners = [];
 }
 
+// ⭐ EXPORT THESE — required by FileIO.js
+export { addListener, cleanupListeners };
+
 // ------------------------------------------------------------
-// Attach handlers to every page view (FIXED)
+// Attach handlers to every page view
 // ------------------------------------------------------------
 function attachHandlersToAllPages() {
-  cleanupListeners(); // ← CRITICAL FIX: prevents duplicate handlers
-
+  // Page views are recreated on each renderAllPages(),
+  // so we attach handlers once per view here.
   for (const view of pageViews) {
     if (!view) continue;
 
-    // Box redaction
-    addListener(view.overlay, "mousedown", e =>
-      attachBoxRedactionHandlers(view.overlay, view, e)
-    );
+    // Box redaction (overlay canvas)
+    attachBoxRedactionHandlers(view.overlay, view);
 
-    // Text selection
-    addListener(view.textLayerDiv, "mousedown", e =>
-      attachTextSelectionHandlers(view.textLayerDiv, view, e)
-    );
+    // Text selection (text layer div)
+    attachTextSelectionHandlers(view.textLayerDiv, view);
 
-    // Auto‑redaction hover/click (FIXED: now uses addListener registry)
+    // Auto‑redaction hover/click (uses addListener registry)
     attachAutoRedactionHandlers(view, addListener);
   }
 }
@@ -207,16 +206,19 @@ function initRedactionModeControls() {
 // initApp()
 // ------------------------------------------------------------
 export function initApp() {
-  initFileIO(); // ← FIX: only called once
+  // File IO (upload, drag/drop, etc.) — called ONCE
+  initFileIO();
 
+  // Global controls
   initSearchControls();
   initAutoRedactionControls();
   initReviewModeControls();
   initUndoRedoControls();
   initRedactionModeControls();
 
-  // Attach handlers after initial load
-  addListener(document, "pdf-loaded", () => {
+  // When pages are rendered (initial load, zoom, undo/redo, etc.),
+  // attach per‑page handlers to the fresh DOM nodes.
+  addListener(document, "pages-rendered", () => {
     attachHandlersToAllPages();
 
     const pageInfo = document.getElementById("pageInfo");
@@ -224,14 +226,4 @@ export function initApp() {
       pageInfo.textContent = `Page 1 / ${window.__PDF_DOC.numPages}`;
     }
   });
-
-  // Re‑attach handlers after any full re‑render (zoom, search, undo/redo)
-addListener(document, "pages-rendered", () => {
-  attachHandlersToAllPages();
-
-  const pageInfo = document.getElementById("pageInfo");
-  if (pageInfo && window.__PDF_DOC) {
-    pageInfo.textContent = `Page 1 / ${window.__PDF_DOC.numPages}`;
-  }
-});
 }
