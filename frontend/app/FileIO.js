@@ -1,6 +1,7 @@
 // ------------------------------------------------------------
 // FileIO.js — Upload, drag/drop, save PDF, export/import redactions
-// FIXED: Click handler and event listeners
+// FIXED: textStore reset, highlightMode default true, safe rect validation
+// FIXED: double file picker (one-time init + addListener registry)
 // ------------------------------------------------------------
 
 import {
@@ -20,8 +21,15 @@ import {
   setStatus
 } from "./Utils.js";
 
+import { clearTextStore } from "./TextLayer.js";
 import { loadPDF } from "../app.js";
 import { downloadBlob, getRedactedFilename } from "./Utils.js";
+
+// ⭐ Import global listener registry from Events.js
+import { addListener } from "./Events.js";
+
+// ⭐ One-time initialization guard
+let fileIOInitialized = false;
 
 // DOM elements
 const dropZone = document.getElementById("dropZone");
@@ -36,9 +44,12 @@ const btnImportRedactions = document.getElementById("btnImportRedactions");
 const importRedactionsInput = document.getElementById("importRedactionsInput");
 
 // ------------------------------------------------------------
-// initFileIO()
+// initFileIO() — now guaranteed to run ONCE
 // ------------------------------------------------------------
 export function initFileIO() {
+  if (fileIOInitialized) return;   // ← prevents double initialization
+  fileIOInitialized = true;
+
   initUploadHandlers();
   initExportImportHandlers();
   initClearSession();
@@ -47,53 +58,43 @@ export function initFileIO() {
 
 // ------------------------------------------------------------
 // Upload Handlers (click + drag/drop)
-// FIXED: Added proper click handler and event propagation
 // ------------------------------------------------------------
 function initUploadHandlers() {
-  // FIXED: Direct click on dropzone opens file dialog
-  dropZone?.addEventListener("click", (e) => {
-    // Don't trigger if clicking on buttons inside dropzone
-    if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+  addListener(dropZone, "click", (e) => {
+    // ⭐ Prevent double file picker:
+    // If the click originated on the actual file input, do nothing.
+    if (e.target === fileInput || e.target.closest("input[type='file']")) {
       return;
     }
-    console.log("[FileIO] Dropzone clicked, opening file dialog");
+
+    // Ignore clicks on buttons inside the dropzone
+    if (e.target.tagName === "BUTTON" || e.target.closest("button")) return;
+
+    // Otherwise, manually trigger the file dialog
     fileInput?.click();
   });
 
-  // File input change handler
-  fileInput?.addEventListener("change", async (e) => {
+  addListener(fileInput, "change", async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      console.log("[FileIO] File selected:", file.name);
-      await handleFileUpload(file);
-    }
+    if (file) await handleFileUpload(file);
   });
 
-  // Drag over
-  dropZone?.addEventListener("dragover", (e) => {
+  addListener(dropZone, "dragover", (e) => {
     e.preventDefault();
-    e.stopPropagation();
     dropZone.classList.add("dragover");
   });
 
-  // Drag leave
-  dropZone?.addEventListener("dragleave", (e) => {
+  addListener(dropZone, "dragleave", (e) => {
     e.preventDefault();
-    e.stopPropagation();
     dropZone.classList.remove("dragover");
   });
 
-  // Drop
-  dropZone?.addEventListener("drop", async (e) => {
+  addListener(dropZone, "drop", async (e) => {
     e.preventDefault();
-    e.stopPropagation();
     dropZone.classList.remove("dragover");
 
     const file = e.dataTransfer.files[0];
-    if (file) {
-      console.log("[FileIO] File dropped:", file.name);
-      await handleFileUpload(file);
-    }
+    if (file) await handleFileUpload(file);
   });
 }
 
@@ -107,19 +108,16 @@ async function handleFileUpload(file) {
     return;
   }
 
-  // Show filename in UI
-  if (fileNameLabel) {
-    fileNameLabel.textContent = file.name;
-  }
+  if (fileNameLabel) fileNameLabel.textContent = file.name;
 
   try {
     const bytes = new Uint8Array(await file.arrayBuffer());
-    console.log("[FileIO] PDF loaded, size:", bytes.length, "bytes");
 
-    // Load PDF into viewer
+    clearTextStore();
+    setHighlightMode(true);
+
     await loadPDF(bytes);
 
-    // Enable buttons
     if (btnRedact) btnRedact.disabled = false;
     if (btnSavePdf) btnSavePdf.disabled = false;
 
@@ -132,6 +130,29 @@ async function handleFileUpload(file) {
 }
 
 // ------------------------------------------------------------
+// SAFE rect validation
+// ------------------------------------------------------------
+function validateRect(rect) {
+  if (!rect) return { x0: 0, y0: 0, x1: 1, y1: 1 };
+
+  const x0 = Number(rect.x0);
+  const y0 = Number(rect.y0);
+  const x1 = Number(rect.x1);
+  const y1 = Number(rect.y1);
+
+  if ([x0, y0, x1, y1].some((v) => isNaN(v))) {
+    return { x0: 0, y0: 0, x1: 1, y1: 1 };
+  }
+
+  return {
+    x0: Math.min(Math.max(x0, 0), 1),
+    y0: Math.min(Math.max(y0, 0), 1),
+    x1: Math.min(Math.max(x1, 0), 1),
+    y1: Math.min(Math.max(y1, 0), 1)
+  };
+}
+
+// ------------------------------------------------------------
 // Convert redactions map → backend list format
 // ------------------------------------------------------------
 function flattenRedactionsMap(map) {
@@ -139,13 +160,14 @@ function flattenRedactionsMap(map) {
 
   for (const page in map) {
     for (const r of map[page]) {
-      // Handle both old and new rect formats
-      const rectData = r.rect || (r.rects && r.rects[0]) || { x0: 0, y0: 0, x1: 1, y1: 1 };
-      
+      const rects = Array.isArray(r.rects)
+        ? r.rects.map(validateRect)
+        : [validateRect(r.rect)];
+
       list.push({
         page: Number(page),
         type: r.type || "box",
-        rects: r.rects || [rectData],
+        rects,
         color: r.color || "#000000"
       });
     }
@@ -164,11 +186,10 @@ export async function applyManualRedactionsAndDownload() {
     return;
   }
 
-  // Check if we have any redactions
   const flatList = flattenRedactionsMap(redactions);
   if (flatList.length === 0) {
-    setStatus("No redactions to apply. Draw some boxes first.");
-    alert("No redactions to apply. Draw some boxes first.");
+    setStatus("No redactions to apply.");
+    alert("No redactions to apply.");
     return;
   }
 
@@ -196,7 +217,6 @@ export async function applyManualRedactionsAndDownload() {
     const blob = await res.blob();
     downloadBlob(blob, getRedactedFilename(fileNameLabel?.textContent || "document.pdf"));
     setStatus("Manual redaction complete.");
-
   } catch (err) {
     console.error(err);
     setStatus("Manual redaction failed (backend not reachable).");
@@ -205,11 +225,11 @@ export async function applyManualRedactionsAndDownload() {
 }
 
 function initSavePdfButton() {
-  btnSavePdf?.addEventListener("click", async () => {
+  addListener(btnSavePdf, "click", async () => {
     await applyManualRedactionsAndDownload();
   });
 
-  btnRedact?.addEventListener("click", async () => {
+  addListener(btnRedact, "click", async () => {
     await applyManualRedactionsAndDownload();
   });
 }
@@ -218,7 +238,7 @@ function initSavePdfButton() {
 // Export / Import Redactions
 // ------------------------------------------------------------
 function initExportImportHandlers() {
-  btnExportRedactions?.addEventListener("click", () => {
+  addListener(btnExportRedactions, "click", () => {
     const blob = new Blob([JSON.stringify(redactions, null, 2)], {
       type: "application/json"
     });
@@ -226,11 +246,11 @@ function initExportImportHandlers() {
     setStatus("Redactions exported.");
   });
 
-  btnImportRedactions?.addEventListener("click", () => {
+  addListener(btnImportRedactions, "click", () => {
     importRedactionsInput?.click();
   });
 
-  importRedactionsInput?.addEventListener("change", async (e) => {
+  addListener(importRedactionsInput, "change", async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -241,7 +261,6 @@ function initExportImportHandlers() {
       let map = {};
 
       if (Array.isArray(imported)) {
-        // Convert list → map
         for (const r of imported) {
           const page = r.page;
           if (!map[page]) map[page] = [];
@@ -255,11 +274,10 @@ function initExportImportHandlers() {
       }
 
       setRedactions(map);
-      
-      // Re-render to show imported redactions
+
       const { renderAllPages } = await import("./PDF_Loader.js");
       await renderAllPages();
-      
+
       setStatus("Redactions imported.");
     } catch (err) {
       console.error(err);
@@ -272,27 +290,26 @@ function initExportImportHandlers() {
 // Clear Session
 // ------------------------------------------------------------
 function initClearSession() {
-  btnClear?.addEventListener("click", () => {
+  addListener(btnClear, "click", () => {
     setPdfDoc(null);
     setPdfBytes(null);
     setNumPages(0);
     setPageViews([]);
 
-    // Reset to map, not list
     setRedactions({});
-
     setAutoRedactSuggestions([]);
     setUndoStack([]);
     setRedoStack([]);
     setSearchResults([]);
     setSearchIndex(0);
-    setHighlightMode(false);
 
-    // Clear UI
+    clearTextStore();
+    setHighlightMode(true);
+
     if (fileNameLabel) fileNameLabel.textContent = "";
     const pdfContainer = document.getElementById("pdfPagesColumn");
     if (pdfContainer) pdfContainer.innerHTML = "";
-    
+
     setStatus("Session cleared.");
   });
 }
