@@ -20,7 +20,14 @@
 /* Component parts */
 @import url('parts/buttons.css');
 
-/* You can still write general styles here if you want */
-body {
-    font-family: sans-serif;
+/* fonts parts */
+@import url('parts/fonts.css');
+
+/* PAGE CONTAINER (visual styling only) */
+.page-container {
+    margin: 20px auto;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.7);
+    border-radius: 4px;
+    overflow: hidden;
 }
