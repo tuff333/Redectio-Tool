@@ -1,0 +1,67 @@
+/* ---------- Sidebar Component ---------- */
+.sidebar {
+  width: 260px;
+  background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+  border-right: 1px solid #111827;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 14px;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 16px 8px;
+  border-bottom: 1px solid #111827;
+  margin-bottom: 12px;
+}
+
+.logo-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #38bdf8, #1d4ed8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  font-size: 18px;
+}
+
+/* Nav Item Styles */
+.nav-item {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.nav-item-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Sidebar Footer & List */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid #111827;
+}
+
+.template-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 12px;
+}

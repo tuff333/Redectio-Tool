@@ -1,0 +1,83 @@
+/* ---------- Viewer panel (PDF.js) ---------- */
+.viewer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+}
+
+.pdf-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #020617;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 16px 0;
+}
+
+/* ---------- PDF Layer Stack (Correct Order) ---------- */
+
+/* 1. PDF Canvas (base layer) */
+.pdf-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none; /* PDF canvas should not capture events */
+  background: red !important;
+}
+
+/* 2. Overlay Canvas (redactions, highlights, auto-suggestions) */
+.overlay-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  pointer-events: auto; /* box drawing + auto-redact hover */
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 3. Text Layer (PDF.js selectable text) */
+.text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto; /* MUST be auto for text selection */
+  opacity: 0.2;
+  z-index: 20;
+  color: transparent;
+}
+
+/* Prevent scaling of PDF canvas + overlay */
+.page-container {
+  position: relative;
+  display: block;
+  margin: 20px auto;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.7);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pdf-pages-column {
+  display: block;        /* ⭐ stack pages naturally */
+  width: 100%;
+  padding-bottom: 40px;  /* space at bottom */
+}
+
+.page-size-shim {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  visibility: hidden;
+}
