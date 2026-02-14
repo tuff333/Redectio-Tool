@@ -7,7 +7,8 @@ import * as pdfjsLib from "./pdf.mjs";
 
 // IMPORTANT:
 // This MUST resolve to /pdfjs/pdf.worker.mjs
-pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.mjs";
+//pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.mjs";
+pdfjsLib.GlobalWorkerOptions.workerSrc = "./pdfjs/pdf.worker.mjs";
 
 // Expose globally so all modules use the same instance
 window.pdfjsLib = pdfjsLib;
