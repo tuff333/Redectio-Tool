@@ -13,7 +13,8 @@ import {
 
   setSearchIndex,
   setHighlightMode,
-  setRedactions
+  setRedactions,
+  setSelectionMode
 } from "./Utils.js";
 
 import { performSearch, updateSearchInfo, scrollToSearchResult } from "./Search.js";
@@ -55,7 +56,7 @@ const btnUndo = document.getElementById("btnUndo");
 const btnRedo = document.getElementById("btnRedo");
 
 // ------------------------------------------------------------
-// GLOBAL LISTENER REGISTRY (for buttons / document events)
+// GLOBAL LISTENER REGISTRY
 // ------------------------------------------------------------
 let registeredListeners = [];
 
@@ -72,25 +73,21 @@ function cleanupListeners() {
   registeredListeners = [];
 }
 
-// ⭐ EXPORT THESE — required by FileIO.js
 export { addListener, cleanupListeners };
 
 // ------------------------------------------------------------
 // Attach handlers to every page view
 // ------------------------------------------------------------
 function attachHandlersToAllPages() {
-  // Page views are recreated on each renderAllPages(),
-  // so we attach handlers once per view here.
   for (const view of pageViews) {
     if (!view) continue;
 
-    // Box redaction (overlay canvas)
     attachBoxRedactionHandlers(view.overlay, view);
 
-    // Text selection (text layer div)
-    attachTextSelectionHandlers(view.textLayerDiv, view);
+    setTimeout(() => {
+      attachTextSelectionHandlers(view.textLayerDiv, view);
+    }, 0);
 
-    // Auto‑redaction hover/click (uses addListener registry)
     attachAutoRedactionHandlers(view, addListener);
   }
 }
@@ -99,10 +96,19 @@ function attachHandlersToAllPages() {
 // Search controls
 // ------------------------------------------------------------
 function initSearchControls() {
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    addListener(searchInput, "input", () => performSearch());
+  }
+
+  const searchBtn = document.getElementById("searchBtn");
+  if (searchBtn) {
+    addListener(searchBtn, "click", () => performSearch());
+  }
+
   addListener(btnSearchPrev, "click", () => {
     if (!searchResults.length) return;
-    const newIndex =
-      (searchIndex - 1 + searchResults.length) % searchResults.length;
+    const newIndex = (searchIndex - 1 + searchResults.length) % searchResults.length;
     setSearchIndex(newIndex);
     updateSearchInfo();
     scrollToSearchResult(searchResults[newIndex]);
@@ -192,11 +198,13 @@ function initUndoRedoControls() {
 // ------------------------------------------------------------
 function initRedactionModeControls() {
   addListener(btnModeSelectText, "click", () => {
+    setSelectionMode("text");
     btnModeSelectText.classList.add("btn-toggle-active");
     btnModeDrawBox.classList.remove("btn-toggle-active");
   });
 
   addListener(btnModeDrawBox, "click", () => {
+    setSelectionMode("box");
     btnModeDrawBox.classList.add("btn-toggle-active");
     btnModeSelectText.classList.remove("btn-toggle-active");
   });
@@ -206,18 +214,14 @@ function initRedactionModeControls() {
 // initApp()
 // ------------------------------------------------------------
 export function initApp() {
-  // File IO (upload, drag/drop, etc.) — called ONCE
   initFileIO();
 
-  // Global controls
   initSearchControls();
   initAutoRedactionControls();
   initReviewModeControls();
   initUndoRedoControls();
   initRedactionModeControls();
 
-  // When pages are rendered (initial load, zoom, undo/redo, etc.),
-  // attach per‑page handlers to the fresh DOM nodes.
   addListener(document, "pages-rendered", () => {
     attachHandlersToAllPages();
 
