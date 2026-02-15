@@ -1,12 +1,12 @@
 // ------------------------------------------------------------
 // Redaction_Box.js — Pixel-perfect box drawing redaction tool
-// FIXED: Normalization uses viewport (correct source of truth)
 // ------------------------------------------------------------
 
 import {
   panMode,
   redactions,
-  setRedactions
+  setRedactions,
+  selectionMode
 } from "./Utils.js";
 
 import { pushUndo } from "./Redaction_Core.js";
@@ -27,9 +27,7 @@ export function attachBoxRedactionHandlers(overlay, view) {
   // -----------------------------
   overlay.addEventListener("mousedown", e => {
     if (panMode) return;
-
-    const drawModeBtn = document.getElementById("btnModeDrawBox");
-    if (!drawModeBtn || !drawModeBtn.classList.contains("btn-toggle-active")) return;
+    if (selectionMode !== "box") return;
 
     drawing = true;
 
@@ -55,10 +53,8 @@ export function attachBoxRedactionHandlers(overlay, view) {
 
     const ctx = overlay.getContext("2d");
 
-    // Restore snapshot
     if (snapshot) ctx.putImageData(snapshot, 0, 0);
 
-    // Draw preview
     ctx.save();
     ctx.strokeStyle = document.getElementById("redactionColor").value || "#000000";
     ctx.lineWidth = 2;
@@ -69,8 +65,7 @@ export function attachBoxRedactionHandlers(overlay, view) {
 
   // -----------------------------
   // Mouseup → finalize redaction
-  // FIXED: Normalize using viewport (not overlay)
-// ------------------------------------------------------------
+  // -----------------------------
   overlay.addEventListener("mouseup", e => {
     if (!drawing) return;
     drawing = false;
@@ -79,40 +74,22 @@ export function attachBoxRedactionHandlers(overlay, view) {
     const endX = e.clientX - rect.left;
     const endY = e.clientY - rect.top;
 
-    // Ignore tiny accidental clicks
     if (Math.abs(endX - startX) < 3 || Math.abs(endY - startY) < 3) {
       snapshot = null;
       renderPageView(view);
       return;
     }
 
-    // ------------------------------------------------------------
-    // FIXED NORMALIZATION
-    // Use viewport.width / viewport.height (correct scaling)
-    // ------------------------------------------------------------
     const vw = view.viewport.width;
     const vh = view.viewport.height;
 
-    const normX0 = Math.min(startX, endX) / vw;
-    const normX1 = Math.max(startX, endX) / vw;
-
-    // PDF y=0 bottom → invert Y
-    const normY0 = 1 - (Math.max(startY, endY) / vh);
-    const normY1 = 1 - (Math.min(startY, endY) / vh);
-
     const norm = {
-      x0: normX0,
-      y0: normY0,
-      x1: normX1,
-      y1: normY1
+      x0: Math.min(startX, endX) / vw,
+      y0: 1 - (Math.max(startY, endY) / vh),
+      x1: Math.max(startX, endX) / vw,
+      y1: 1 - (Math.min(startY, endY) / vh)
     };
 
-    console.log("[Redaction_Box] Box drawn:", {
-      screen: { startX, startY, endX, endY },
-      normalized: norm
-    });
-
-    // Save redaction
     pushUndo();
 
     const page = view.pageNumber;
