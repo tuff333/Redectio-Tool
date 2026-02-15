@@ -1,16 +1,10 @@
 // ------------------------------------------------------------
-// PDF_Loader.js — Safe PDF rendering with annotation sync
-// FIXED: worker conflict, missing pdf-init import, textStore reset,
-//        unified overlay drawing (no AnnotationEngine conflict)
+// PDF_Loader.js — Safe PDF rendering with annotation sync + OCR fallback
 // ------------------------------------------------------------
 
 // IMPORTANT: pdf-init sets the workerSrc safely.
 // DO NOT set workerSrc here.
 const pdfjsLib = window.pdfjsLib;
-
-//import "../css/pdf-init.js";
-
-//import * as pdfjsLib from "../pdfjs/pdf.mjs";
 
 import {
   setPdfDoc,
@@ -27,13 +21,16 @@ import { drawSearchHighlightsOnView } from "./Search.js";
 import { drawAutoRedactPreviewOnView } from "./Redaction_Auto.js";
 import { buildTextLayer, clearTextStore } from "./TextLayer.js";
 
+// ⭐ NEW: OCR fallback
+import { runOCRFallback } from "./OCR_Fallback.js";
+
 // ------------------------------------------------------------
 // loadPDF(pdfBytes)
 // ------------------------------------------------------------
 export async function loadPDF(pdfBytes) {
   setPdfBytes(pdfBytes);
 
-  // FIXED: clear textStore before loading a new PDF
+  // Reset text store
   clearTextStore();
 
   const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
@@ -43,7 +40,11 @@ export async function loadPDF(pdfBytes) {
   setPdfDoc(pdf);
   setNumPages(pdf.numPages);
 
+  // Render normally first
   await renderAllPages();
+
+  // ⭐ Run OCR fallback if PDF.js extracted no text
+  await runOCRFallback(pdfBytes);
 
   document.dispatchEvent(new CustomEvent("pdf-loaded"));
 }
@@ -67,16 +68,26 @@ function createPageView(page, viewport, pageNum) {
   const overlay = document.createElement("canvas");
   overlay.className = "overlay-canvas";
 
+  // ⭐ Shim to give wrapper real size
+  const sizeShim = document.createElement("div");
+  sizeShim.className = "page-size-shim";
+  wrapper.appendChild(sizeShim);
+
   wrapper.appendChild(canvas);
   wrapper.appendChild(textLayerDiv);
   wrapper.appendChild(overlay);
   container.appendChild(wrapper);
 
+  // Size the drawing surfaces
   canvas.width = viewport.width;
   canvas.height = viewport.height;
 
   overlay.width = viewport.width;
   overlay.height = viewport.height;
+
+  // ⭐ Give the wrapper real size so it’s visible
+  //wrapper.style.width = viewport.width + "px";
+  //wrapper.style.height = viewport.height + "px";
 
   return {
     pageNumber: pageNum,
@@ -106,6 +117,9 @@ export async function renderPageView(view) {
   // Resize layers
   view.canvas.width = viewport.width;
   view.canvas.height = viewport.height;
+  // ⭐ Keep wrapper size in sync with viewport
+  view.wrapper.style.width = viewport.width + "px";
+  view.wrapper.style.height = viewport.height + "px";
 
   view.overlay.width = viewport.width;
   view.overlay.height = viewport.height;
@@ -117,13 +131,10 @@ export async function renderPageView(view) {
   const ctx = view.canvas.getContext("2d");
   await page.render({ canvasContext: ctx, viewport }).promise;
 
-  // Build text layer
+  // Build text layer (PDF.js text)
   await buildTextLayer(view, viewport);
 
-  // ------------------------------------------------------------
-  // Unified overlay drawing (FIXED)
-  // Removed AnnotationEngine to prevent double overlays
-  // ------------------------------------------------------------
+  // Draw overlays
   drawRedactionsOnView(view);
   if (highlightMode) drawSearchHighlightsOnView(view);
   drawAutoRedactPreviewOnView(view);
@@ -139,7 +150,7 @@ export async function renderAllPages() {
   const container = document.getElementById("pdfPagesColumn");
   container.innerHTML = "";
 
-  // FIXED: clear textStore before full re-render
+  // Reset text store for full re-render
   clearTextStore();
 
   const views = [];
