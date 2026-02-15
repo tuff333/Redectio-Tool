@@ -73,6 +73,15 @@ export function setReviewMode(v) { reviewMode = v; }
 export function setShowOnlyAuto(v) { showOnlyAuto = v; }
 
 // ------------------------------------------------------------
+// Selection Mode (text vs box)
+// ------------------------------------------------------------
+export let selectionMode = "box"; // default matches UI
+
+export function setSelectionMode(v) {
+  selectionMode = v;
+}
+
+// ------------------------------------------------------------
 // Status Bar
 // FIXED: Added fallback if element not found
 // ------------------------------------------------------------
