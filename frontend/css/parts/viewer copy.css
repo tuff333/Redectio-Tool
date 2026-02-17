@@ -1,0 +1,94 @@
+/* ---------- Viewer panel (PDF.js) ---------- */
+.viewer-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-subtle);
+  overflow: hidden;
+}
+
+.pdf-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  background: #020617;
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 16px 0;
+}
+
+/* ---------- PDF Layer Stack (Correct Order) ---------- */
+
+/* 1. PDF Canvas (base layer) */
+.pdf-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none; /* PDF canvas should not capture events */
+  background: #ffffff;  /* normal white page */
+}
+
+/* 2. Overlay Canvas (redactions, previews, boxes) */
+.overlay-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  pointer-events: auto; /* box drawing + box editing */
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+/* 3. Text Layer (PDF.js text for smart selection) */
+.text-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;   /* needed for text selection mode */
+  opacity: 1;
+  color: transparent;     /* text invisible */
+  user-select: text;      /* ❗ we handle selection ourselves */
+  z-index: 20;
+}
+
+.text-layer span {
+  color: transparent;
+  user-select: text;
+}
+
+/* Disable browser selection highlight completely */
+/*.text-layer ::selection {
+  background: transparent;
+}*/
+
+/* Page container */
+.page-container {
+  position: relative;
+  display: block;
+  margin: 20px auto;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.7);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.pdf-pages-column {
+  display: block;
+  width: 100%;
+  padding-bottom: 40px;
+}
+
+.page-size-shim {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  visibility: hidden;
+}

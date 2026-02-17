@@ -1,0 +1,24 @@
+{
+  "company_id": "pathogenia",
+  "display_name": "Pathogenia Inc.",
+  "keywords": ["Pathogenia", "Pathogenia Inc"],
+
+  "manual_presets": {
+    "default_color": "#000000",
+    "default_mode": "black",
+    "default_annotation": "box"
+  },
+
+  "rules": [
+    {
+      "id": "EMAIL",
+      "type": "regex",
+      "pattern": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+      "flags": "i",
+      "color": "#000000",
+      "mode": "black"
+    }
+  ],
+
+  "zones": []
+}
