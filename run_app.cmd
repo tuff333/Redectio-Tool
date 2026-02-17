@@ -1,4 +1,5 @@
 @echo off
+cd /d C:\projects\redact-tool-K2
 title COA Redaction Tool (Single Window Mode)
 
 echo ============================================
@@ -7,7 +8,7 @@ echo ============================================
 
 REM --- Start API server in background ---
 echo Starting API server on port 8000...
-start /b uvicorn backend.api_server:app --reload --port 8000
+start /b python -m backend.api_server
 
 REM --- Start frontend server in background ---
 echo Starting frontend server on port 5500...
