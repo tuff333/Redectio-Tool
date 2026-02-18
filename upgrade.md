@@ -153,6 +153,8 @@ Use a shared tooltip component (CSS + small JS).
   - UI:
     - Dropdown under search input.
     - Arrow keys + Enter to select.
+  Frequency‑based ranking
+Most common words appear first.
 
 - **Redaction from search:**
   - For a selected word:
