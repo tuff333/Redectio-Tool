@@ -1,0 +1,84 @@
+{
+  "version": "1.0",
+  "description": "Universal redaction rules for all companies",
+  
+  "text_rules": [
+    {
+      "id": "email",
+      "label": "Email address",
+      "type": "regex",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "page_scope": "all",
+      "group": "pii",
+      "confidence": 0.95,
+      "action": "suggest"
+    },
+    {
+      "id": "phone",
+      "label": "Phone number",
+      "type": "regex",
+      "pattern": "(\\+?\\d[\\d\\s().-]{7,}\\d)",
+      "page_scope": "all",
+      "group": "pii",
+      "confidence": 0.90,
+      "action": "suggest"
+    },
+    {
+      "id": "date",
+      "label": "Date",
+      "type": "regex",
+      "pattern": "\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}\\b",
+      "page_scope": "all",
+      "group": "document_metadata",
+      "confidence": 0.80,
+      "action": "suggest"
+    },
+    {
+      "id": "coa_number",
+      "label": "COA / Certificate Number",
+      "type": "regex",
+      "pattern": "(COA|Certificate)\\s*#?\\s*[:\\-]?\\s*[A-Z0-9\\-]+",
+      "page_scope": "all",
+      "group": "document_id",
+      "confidence": 0.85,
+      "action": "suggest"
+    }
+  ],
+
+  "barcode_rules": {
+    "enabled": true,
+    "engines": ["zxing", "pyzbar"],
+    "default_action": "suggest",
+    "page_scope": "all",
+    "confidence": 0.99
+  },
+
+  "qr_rules": {
+    "enabled": true,
+    "engines": ["zxing", "pyzbar"],
+    "default_action": "suggest",
+    "page_scope": "all",
+    "confidence": 0.99
+  },
+
+  "layout_rules": [
+    {
+      "id": "header_block",
+      "label": "Header block",
+      "type": "zone",
+      "page_scope": "first_page",
+      "relative": true,
+      "rect": { "x0": 0.0, "y0": 0.85, "x1": 1.0, "y1": 1.0 },
+      "action": "suggest"
+    },
+    {
+      "id": "footer_block",
+      "label": "Footer block",
+      "type": "zone",
+      "page_scope": "all",
+      "relative": true,
+      "rect": { "x0": 0.0, "y0": 0.0, "x1": 1.0, "y1": 0.10 },
+      "action": "suggest"
+    }
+  ]
+}

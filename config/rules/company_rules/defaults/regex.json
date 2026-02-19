@@ -1,0 +1,32 @@
+{
+  "actual_regex": [
+    {
+      "id": "email_generic",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "label": "Email address",
+      "action": "suggest",
+      "confidence": 0.95
+    },
+    {
+      "id": "phone_generic",
+      "pattern": "(\\+?\\d[\\d\\s().-]{7,}\\d)",
+      "label": "Phone number",
+      "action": "suggest",
+      "confidence": 0.90
+    },
+    {
+      "id": "date_generic",
+      "pattern": "\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}\\b",
+      "label": "Date",
+      "action": "suggest",
+      "confidence": 0.80
+    },
+    {
+      "id": "coa_generic",
+      "pattern": "(COA|Certificate|Cert)\\s*#?\\s*[:\\-]?\\s*[A-Z0-9\\-]{3,20}",
+      "label": "COA / Certificate Number",
+      "action": "suggest",
+      "confidence": 0.85
+    }
+  ]
+}

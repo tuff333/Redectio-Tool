@@ -1,0 +1,18 @@
+{
+  "barcode_qr_defaults": {
+    "barcode_zones": [
+      {
+        "rect": { "x0": 0.80, "y0": 0.02, "x1": 0.98, "y1": 0.12 },
+        "page_scope": "all",
+        "action": "suggest"
+      }
+    ],
+    "qr_zones": [
+      {
+        "rect": { "x0": 0.88, "y0": 0.72, "x1": 0.98, "y1": 0.92 },
+        "page_scope": "first_page",
+        "action": "suggest"
+      }
+    ]
+  }
+}
