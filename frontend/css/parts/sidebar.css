@@ -1,0 +1,73 @@
+/* ---------- Sidebar Component ---------- */
+.sidebar {
+  width: 240px; /* slimmer for more PDF space */
+  background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 100%);
+  border-right: 1px solid #111827;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+}
+
+/* User badge at top */
+.sidebar-user {
+  padding: 10px 0 16px 0;
+  text-align: center;
+}
+
+/* Nav Items */
+.nav-item {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 10px;
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.nav-item-active {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #111827;
+}
+
+.footer-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+/* Template list */
+.template-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.template-list li {
+  padding: 6px 0;
+  overflow-wrap: break-word;
+}
+
+/* Inline template buttons */
+.inline-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
