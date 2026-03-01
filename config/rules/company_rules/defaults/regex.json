@@ -1,0 +1,74 @@
+{
+  "actual_regex": [
+    {
+      "id": "email_generic",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "label": "Email address",
+      "action": "suggest",
+      "confidence": 0.95
+    },
+    {
+      "id": "phone_generic",
+      "pattern": "(\\+?\\d[\\d\\s().-]{7,}\\d)",
+      "label": "Phone number",
+      "action": "suggest",
+      "confidence": 0.90
+    },
+    {
+      "id": "date_generic",
+      "pattern": "\\b\\d{1,2}[/-]\\d{1,2}[/-]\\d{2,4}\\b",
+      "label": "Date",
+      "action": "suggest",
+      "confidence": 0.80
+    },
+    {
+      "id": "coa_generic",
+      "pattern": "(COA|Certificate|Cert)\\s*#?\\s*[:\\-]?\\s*[A-Z0-9\\-]{3,20}",
+      "label": "COA / Certificate Number",
+      "action": "suggest",
+      "confidence": 0.85
+    },
+    {
+      "id": "report_number_generic",
+      "pattern": "(Report\\s*(No\\.?|Number))[:\\s]*[A-Za-z0-9\\-]+",
+      "label": "Report Number",
+      "action": "suggest",
+      "confidence": 0.95
+    },
+    {
+      "id": "account_number_generic",
+      "pattern": "(Account\\s*(No\\.?|Number))[:\\s]*[A-Za-z0-9\\-]+",
+      "label": "Account Number",
+      "action": "suggest",
+      "confidence": 0.95
+    },
+    {
+      "id": "license_number_generic",
+      "pattern": "(License\\s*(No\\.?|Number))[:\\s]*[A-Za-z0-9\\-]+",
+      "label": "License Number",
+      "action": "suggest",
+      "confidence": 0.95
+    },
+    {
+      "id": "client_name_generic",
+      "pattern": "(To|Client|Customer|Prepared\\s*For)[:\\s]+[A-Za-z ,.'-]{3,}",
+      "label": "Client Name",
+      "action": "suggest",
+      "confidence": 0.90
+    },
+    {
+      "id": "client_address_generic",
+      "pattern": "\\d+\\s+[A-Za-z0-9 .,'-]+(Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Lane|Ln|Court|Ct)",
+      "label": "Client Address",
+      "action": "suggest",
+      "confidence": 0.90
+    },
+    {
+      "id": "lot_number_generic",
+      "pattern": "(Lot|Batch|Sample\\s*ID|Lab\\s*Number)[:\\s]*[A-Za-z0-9\\-]+",
+      "label": "Lot / Batch / Sample ID",
+      "action": "suggest",
+      "confidence": 0.95
+    }
+  ]
+}
