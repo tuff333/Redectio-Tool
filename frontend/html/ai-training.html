@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redectio – AI Training</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+</head>
+
+<body data-theme="system" data-density="comfortable" data-page="ai-training">
+  <div id="alertContainer"></div>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- LEFT SIDEBAR (standalone) -->
+  <aside class="sidebar sidebar-static">
+    <div class="sidebar-inner">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-mark-animated">R</span>
+          <div class="logo-text">
+            <span class="logo-title">Redectio</span>
+            <span class="logo-subtitle">COA Redaction</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item" data-nav="home" data-tooltip="Home&#10;Tip: Landing page">
+          <i data-lucide="home" class="icon-20"></i>
+          <span class="nav-label">Home</span>
+        </button>
+
+        <button class="nav-item" data-nav="redaction" data-tooltip="Redaction&#10;Tip: Single PDF redaction&#10;Shortcut: T/B/H">
+          <i data-lucide="file-text" class="icon-20"></i>
+          <span class="nav-label">Redaction</span>
+        </button>
+
+        <button class="nav-item" data-nav="batch-redaction" data-tooltip="Batch Redaction&#10;Tip: Multi-PDF offline redaction">
+          <i data-lucide="layers" class="icon-20"></i>
+          <span class="nav-label">Batch Redaction</span>
+        </button>
+
+        <button class="nav-item nav-item-active" data-nav="ai-training" data-tooltip="AI Training&#10;Tip: Train local patterns from PDF pairs">
+          <i data-lucide="brain" class="icon-20"></i>
+          <span class="nav-label">AI Training</span>
+        </button>
+
+        <button class="nav-item" data-nav="settings" data-tooltip="Settings&#10;Tip: Theme, density, AI sensitivity">
+          <i data-lucide="settings" class="icon-20"></i>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+    </div>
+  </aside>
+
+  <div class="app-root" style="padding: 24px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+      <a
+        href="../index.html"
+        class="logo-circle"
+        style="text-decoration: none; display: flex;"
+        aria-label="Go to home"
+      >R</a>
+      <h1 style="margin: 0;">AI Training</h1>
+    </div>
+
+    <p style="margin: 0 0 18px; opacity: 0.8;">
+      This page has moved to Offline AI Training.
+    </p>
+
+    <div style="margin-bottom: 12px;">
+      <a class="btn btn-primary" href="./training.html">Go to training</a>
+    </div>
+
+    <a class="btn btn-ghost" href="./redaction.html">
+      <i data-lucide="arrow-left"></i>
+      Back to Redaction
+    </a>
+  </div>
+
+  <footer class="app-footer">
+    <span class="footer-text">Redectio · Local-only · Designed by Rasesh</span>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Soft redirect for existing bookmarks.
+      try {
+        window.location.href = "./training.html";
+      } catch {
+        // ignore
+      }
+    });
+  </script>
+
+  <script>
+    // Sync theme + density from the same localStorage key used by the app.
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const raw = localStorage.getItem("coaSettings") || "{}";
+        const settings = JSON.parse(raw);
+        if (settings.theme) document.body.dataset.theme = settings.theme;
+        if (settings.density) document.body.dataset.density = settings.density;
+      } catch {
+        // Keep HTML defaults.
+      }
+    });
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+
+  <script>
+    // Standalone navigation for sidebar buttons on AI training page.
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".nav-item[data-nav]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.nav;
+          if (target === "home") window.location.href = "../index.html";
+          else if (target === "redaction") window.location.href = "./redaction.html";
+          else if (target === "batch-redaction") window.location.href = "./batch-redaction.html";
+          else if (target === "ai-training") window.location.href = "./training.html";
+          else if (target === "settings") window.location.href = "./settings.html";
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,33 @@
+.suggestions {
+  position: absolute;
+  top: 100%;              /* appear directly under input */
+  left: 0;
+  width: 100%;            /* match input width */
+  background: var(--surface);           /* ⭐ theme-aware */
+  border: 1px solid #1f2937;
+  border-radius: 6px;
+  margin-top: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+  z-index: 9999;          /* ensure visible above all panels */
+  box-shadow: var(--shadow-subtle);     /* ⭐ soft shadow */
+  color: var(--text-primary);           /* ⭐ readable text */
+  font-size: 12px;
+}
+
+.suggestion-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--text-primary);     /* ⭐ readable */
+  font-size: 12px;
+}
+
+.suggestion-item:hover {
+  background: var(--accent-soft);       /* ⭐ theme-aware hover */
+  color: var(--accent);
+}
+
+/* Hidden state */
+.hidden {
+  display: none !important;
+}

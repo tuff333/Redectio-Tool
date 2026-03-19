@@ -1,0 +1,269 @@
+/* ------------------------------------------------------------
+   RESPONSIVE LAYOUT — HOME + SETTINGS
+   ------------------------------------------------------------ */
+
+/* ---------- DESKTOP (default) ---------- */
+body[data-page="home"] .workspace {
+  grid-template-columns: 220px 1fr 150px;
+}
+
+body[data-page="settings"] .workspace {
+  grid-template-columns: 220px 1fr;
+}
+
+body[data-page="redaction"] .workspace {
+  grid-template-columns: 220px 1fr 150px;
+}
+
+/* ---------- MEDIUM (900px–1199px) ---------- */
+@media (max-width: 1199px) {
+
+  /* HOME: SIDEBAR → icon mode */
+  body[data-page="home"] .sidebar {
+    width: 70px !important;
+  }
+
+  body[data-page="home"] .sidebar .nav-label,
+  body[data-page="home"] .sidebar-user,
+  body[data-page="home"] .sidebar-footer,
+  body[data-page="home"] #uploadSection {
+    display: none !important;
+  }
+
+  /* HOME: TOOLS → icon mode */
+  body[data-page="home"] .right-panel {
+    width: 70px !important;
+  }
+
+  body[data-page="home"] #redactionSection button {
+    width: 48px !important;
+    font-size: 0 !important;
+  }
+
+  body[data-page="home"] #redactionSection button i {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* HOME GRID */
+  body[data-page="home"] .workspace {
+    grid-template-columns: 70px 1fr 70px !important;
+  }
+
+  /* SETTINGS: keep full sidebar + 2‑col layout */
+  body[data-page="settings"] .workspace {
+    grid-template-columns: 220px 1fr !important;
+  }
+
+  body[data-page="settings"] .sidebar {
+    width: 220px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  body[data-page="settings"] .sidebar-header,
+  body[data-page="settings"] .sidebar-footer,
+  body[data-page="settings"] #uploadSection,
+  body[data-page="settings"] .sidebar-user,
+  body[data-page="settings"] .nav-label {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  body[data-page="settings"] .right-panel {
+    display: none !important;
+  }
+
+  /* REDACTION: SIDEBAR + TOOLS → icon mode */
+  body[data-page="redaction"] .sidebar {
+    width: 70px !important;
+  }
+
+  body[data-page="redaction"] .sidebar .nav-label,
+  body[data-page="redaction"] .sidebar-user,
+  body[data-page="redaction"] .sidebar-footer {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] .workspace {
+    grid-template-columns: 70px 1fr 70px !important;
+  }
+
+  body[data-page="redaction"] .right-panel {
+    width: 70px !important;
+  }
+
+  /* Right-panel: icons only */
+  body[data-page="redaction"] .tools-tab .tab-text,
+  body[data-page="redaction"] .btn-text {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] .tools-tab {
+    padding: 6px 0 !important;
+  }
+
+  body[data-page="redaction"] .tools-group .btn-row .btn {
+    width: 44px !important;
+    padding: 6px 0 !important;
+    gap: 0 !important;
+  }
+
+  /* Plugins list: icons only */
+  body[data-page="redaction"] .plugin-category-header {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] .plugin-version,
+  body[data-page="redaction"] .plugin-description {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] .plugin-btn span,
+  body[data-page="redaction"] .plugin-toggle .btn-text {
+    display: none !important;
+  }
+
+  /* Keep upload usable, but make it icon-focused */
+  body[data-page="redaction"] #uploadSection .sidebar-section-title {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] #uploadSection .dropzone-text-main,
+  body[data-page="redaction"] #uploadSection .dropzone-text-sub,
+  body[data-page="redaction"] #uploadSection #fileName {
+    display: none !important;
+  }
+
+  body[data-page="redaction"] #uploadSection .dropzone-inner {
+    min-height: auto !important;
+    padding: 2px 0 !important;
+  }
+}
+
+/* ---------- SMALL (< 900px) ---------- */
+@media (max-width: 900px) {
+
+  /* HOME: single column grid */
+  body[data-page="home"] .workspace {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* HOME: SIDEBAR → horizontal row */
+  body[data-page="home"] .sidebar {
+    width: 100% !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  body[data-page="home"] .sidebar-nav {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  body[data-page="home"] .sidebar-header,
+  body[data-page="home"] .sidebar-footer,
+  body[data-page="home"] #uploadSection {
+    display: none !important;
+  }
+
+  /* HOME: VIEWER full width */
+  body[data-page="home"] .viewer-panel {
+    width: 100% !important;
+  }
+
+  /* HOME: TOOLS → floating right */
+  body[data-page="home"] .right-panel {
+    width: 70px !important;
+    position: absolute;
+    right: 10px;
+    top: 120px;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px;
+  }
+
+  /* SETTINGS: keep 2‑col, full sidebar, no tools */
+  body[data-page="settings"] .workspace {
+    grid-template-columns: 220px 1fr !important;
+  }
+
+  body[data-page="settings"] .sidebar {
+    width: 220px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  body[data-page="settings"] .sidebar-header,
+  body[data-page="settings"] .sidebar-footer,
+  body[data-page="settings"] #uploadSection,
+  body[data-page="settings"] .sidebar-user,
+  body[data-page="settings"] .nav-label {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  body[data-page="settings"] .right-panel {
+    display: none !important;
+  }
+
+  /* REDACTION: keep icon mode for shrink */
+  body[data-page="redaction"] .sidebar {
+    width: 70px !important;
+  }
+
+  body[data-page="redaction"] .workspace {
+    grid-template-columns: 70px 1fr 70px !important;
+  }
+
+  body[data-page="redaction"] .right-panel {
+    width: 70px !important;
+  }
+}
+
+/* ---------- VERY SMALL (< 600px) ---------- */
+@media (max-width: 600px) {
+  .app-root {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .viewer-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .zoom-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  body[data-page="home"] .right-panel {
+    top: 150px;
+  }
+
+  /* REDACTION: make viewer take full width */
+  body[data-page="redaction"] .workspace {
+    /* Keep the 3-panel order: sidebar → PDF viewer → tools */
+    grid-template-columns: 56px 1fr 56px !important;
+  }
+
+  body[data-page="redaction"] .sidebar {
+    width: 56px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center;
+  }
+
+  body[data-page="redaction"] .sidebar-nav {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  body[data-page="redaction"] .right-panel {
+    width: 56px !important;
+  }
+}

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redectio – COA Redaction Tool</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body data-theme="system" data-density="comfortable" data-page="home">
+
+  <div id="alertContainer"></div>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- HOME LANDING (blue gradient + animated cards) -->
+  <div id="homeLanding" class="home-landing">
+    <div class="home-landing-inner">
+      <div class="home-hero-copy">
+        <div class="home-hero-badge">
+          <i data-lucide="sparkles"></i>
+          <span class="home-subtle-anim">Rasesh COAs Redaction software</span>
+        </div>
+        <h1 class="home-title">
+          <span class="gradient">Redact, analyze, and secure</span> your documents with AI
+        </h1>
+        <p class="home-subtitle">
+          Everything stays in your browser. No data ever leaves your machine.
+        </p>
+      </div>
+
+      <div class="home-hero-row">
+        <a class="home-card home-upload-card" href="html/redaction.html">
+          <div class="home-icon-line">
+            <div>
+              <h3 class="home-card-title">Redaction</h3>
+              <div class="home-card-text">Upload one COA and redact what matters.</div>
+            </div>
+            <i data-lucide="file-text"></i>
+          </div>
+        </a>
+
+        <a class="home-card home-feature-card" href="html/batch-redaction.html">
+          <div class="home-icon-line">
+            <div>
+              <h3 class="home-card-title">Batch Redaction</h3>
+              <div class="home-card-text">Process multiple PDFs with one workflow.</div>
+            </div>
+            <i data-lucide="copy"></i>
+          </div>
+        </a>
+      </div>
+
+      <div class="home-hero-row">
+        <a class="home-card home-feature-card" href="html/training.html">
+          <div class="home-icon-line">
+            <div>
+              <h3 class="home-card-title">AI Training</h3>
+              <div class="home-card-text">Improve detection accuracy over time.</div>
+            </div>
+            <i data-lucide="brain"></i>
+          </div>
+        </a>
+
+        <a class="home-card home-feature-card" href="html/settings.html">
+          <div class="home-icon-line">
+            <div>
+              <h3 class="home-card-title">Settings</h3>
+              <div class="home-card-text">Theme, density, and preferences.</div>
+            </div>
+            <i data-lucide="settings"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    // Sync theme + density from the same localStorage key used by the app.
+    // This is needed on the standalone homepage (index.html), which doesn't load app.js.
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        const raw = localStorage.getItem("coaSettings") || "{}";
+        const settings = JSON.parse(raw);
+        if (settings.theme) document.body.dataset.theme = settings.theme;
+        if (settings.density) document.body.dataset.density = settings.density;
+      } catch {
+        // If localStorage parsing fails, keep the defaults in the HTML.
+      }
+    });
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+
+  <script>
+    // Standalone navigation for sidebar buttons on index.html.
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".nav-item[data-nav]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.nav;
+          if (target === "home") window.location.href = "index.html";
+          else if (target === "redaction") window.location.href = "html/redaction.html";
+          else if (target === "batch-redaction") window.location.href = "html/batch-redaction.html";
+          else if (target === "ai-training") window.location.href = "html/training.html";
+          else if (target === "settings") window.location.href = "html/settings.html";
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

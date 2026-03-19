@@ -1,0 +1,371 @@
+/* ------------------------------------------------------------
+   HOME LANDING — blue gradient + animated cards
+   ------------------------------------------------------------ */
+
+#homeLanding {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+
+  /* Theme-aware background */
+  background: var(--bg-main);
+  backdrop-filter: blur(10px);
+}
+
+
+/* Home page should not inherit the app layout flex rules (prevents left whitespace). */
+body[data-page="home"] {
+  display: block;
+}
+
+.home-card.home-upload-card,
+.home-card.home-feature-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.home-landing-inner {
+  width: 100%;
+  max-width: 1120px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.home-hero-copy {
+  text-align: center;
+}
+
+.home-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.10);
+  border: 1px solid rgba(59, 130, 246, 0.20);
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.home-title {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+
+.home-title .gradient {
+  background: linear-gradient(90deg, var(--accent), rgba(34, 211, 238, 1));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: homeGradientShift 3.5s ease-in-out infinite;
+}
+
+@keyframes homeGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.home-subtitle {
+  margin: 12px 0 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.home-hero-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.home-upload-card {
+  flex: 2 1 520px;
+}
+
+.home-feature-card {
+  flex: 1 1 240px;
+}
+
+.home-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  padding: 18px 18px;
+  overflow: hidden;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  position: relative;
+}
+
+.home-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(600px 120px at 10% 0%, rgba(59, 130, 246, 0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.home-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.18);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.home-card:hover::before {
+  opacity: 1;
+}
+
+.home-icon-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.home-card i[data-lucide] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.20);
+  color: var(--accent);
+}
+
+.home-card i svg {
+  transition: transform 0.22s ease;
+}
+
+.home-card:hover i svg {
+  transform: rotate(-10deg) scale(1.08);
+}
+
+/* ------------------------------------------------------------
+   Universal button "shine" animation (matches home cards)
+   Apply to most interactive elements across the app.
+   ------------------------------------------------------------ */
+.btn,
+.nav-item,
+.plugin-btn,
+.plugin-toggle,
+.plugin-entry,
+.tools-tab,
+.logo-circle {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before,
+.nav-item::before,
+.plugin-btn::before,
+.plugin-toggle::before,
+.plugin-entry::before,
+.tools-tab::before,
+.logo-circle::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: radial-gradient(600px 120px at 10% 0%, rgba(59, 130, 246, 0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  pointer-events: none;
+}
+
+.btn:hover::before,
+.nav-item:hover::before,
+.plugin-btn:hover::before,
+.plugin-toggle:hover::before,
+.plugin-entry:hover::before,
+.tools-tab:hover::before,
+.logo-circle:hover::before {
+  opacity: 1;
+}
+
+.home-card-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.home-card-text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ----------------------------
+   Upload dropzone (sidebar + landing)
+   ---------------------------- */
+.home-dropzone {
+  padding: 14px;
+}
+
+.dropzone {
+  width: 100%;
+  border-radius: 16px;
+  border: 1.5px dashed rgba(59, 130, 246, 0.45);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.06), rgba(34, 211, 238, 0.04));
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+
+.dropzone.dragover {
+  border-color: rgba(59, 130, 246, 0.95);
+  background: rgba(59, 130, 246, 0.10);
+  transform: translateY(-1px);
+}
+
+.dropzone .dropzone-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 120px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------
+   Compact sidebar upload (matches button height)
+   ------------------------------------------------------------ */
+#uploadSection.upload-compact #dropZone {
+  padding: 6px 10px;
+}
+
+#uploadSection.upload-compact #dropZone .dropzone-inner {
+  min-height: 44px;
+  gap: 0;
+}
+
+#uploadSection.upload-compact #dropZone .dropzone-text-main,
+#uploadSection.upload-compact #dropZone .dropzone-text-sub {
+  display: none;
+}
+
+#uploadSection.upload-compact #dropZone .dropzone-icon {
+  margin-bottom: 0;
+}
+
+#uploadSection.upload-compact #dropZone .dropzone-filename {
+  margin-top: 0;
+  font-size: 11px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropzone .dropzone-icon {
+  font-size: 28px;
+  margin-bottom: 2px;
+  opacity: 0.95;
+}
+
+.dropzone .dropzone-text-main {
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.dropzone .dropzone-text-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Hide the raw file input (FileIO.js still wires to it by id) */
+.dropzone-input {
+  display: none;
+}
+
+.dropzone-filename {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.home-upload-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.home-upload-status {
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* ----------------------------
+   Animated text (small)
+   ---------------------------- */
+.home-subtle-anim {
+  display: inline-block;
+  position: relative;
+}
+
+.home-subtle-anim::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 2px;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), rgba(34, 211, 238, 1));
+  animation: underlinePulse 2.6s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+@keyframes underlinePulse {
+  0% {
+    transform: scaleX(0.18);
+    opacity: 0.4;
+  }
+  45% {
+    transform: scaleX(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scaleX(0.18);
+    opacity: 0.4;
+  }
+}
+
+/* ----------------------------
+   Responsive tweaks
+   ---------------------------- */
+@media (max-width: 900px) {
+  .home-title {
+    font-size: 30px;
+  }
+
+  .home-upload-card,
+  .home-feature-card {
+    flex-basis: 100%;
+  }
+}
+

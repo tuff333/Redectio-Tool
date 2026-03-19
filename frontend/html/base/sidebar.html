@@ -1,0 +1,59 @@
+<aside class="sidebar">
+
+  <div class="sidebar-user">
+    <!--<span class="badge">Rasesh Pradhan</span>-->
+  </div>
+
+  <nav class="sidebar-nav">
+    <button class="nav-item" data-nav="redaction">
+      <span class="nav-icon">📄</span>
+      <span class="nav-label">Redaction</span>
+    </button>
+
+    <button class="nav-item" disabled>
+      <span class="nav-icon">📚</span>
+      <span class="nav-label">Batch (coming)</span>
+    </button>
+
+    <button class="nav-item" data-nav="settings">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Settings</span>
+    </button>
+  </nav>
+
+  <section class="panel-section" id="uploadSection">
+
+    <div id="dropZone" class="dropzone">
+      <input id="fileInput" type="file" accept="application/pdf" class="dropzone-input" />
+      <div class="dropzone-inner">
+        <div class="dropzone-text-main">Drop or click to select PDF</div>
+        <div class="dropzone-text-sub">Only PDF files are supported</div>
+        <div id="fileName" class="dropzone-filename"></div>
+      </div>
+    </div>
+
+    <div class="panel-actions">
+      <button id="btnRedact" class="btn btn-primary" disabled>Apply Manual Redactions</button>
+      <button id="btnClear" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <div id="statusText" class="status-text"></div>
+  </section>
+
+  <div class="sidebar-footer">
+    <div class="footer-title">Templates</div>
+
+    <div class="field-label">Detected company</div>
+    <select id="companySelect" class="input-text">
+      <option value="">(none)</option>
+    </select>
+
+    <ul id="templateList" class="template-list"></ul>
+    <div id="templateSidebar" class="template-sidebar"></div>
+
+    <div class="btn-row">
+      <button id="btnSaveRule" class="btn btn-primary btn-small">Save Selected as Rule</button>
+    </div>
+  </div>
+
+</aside>

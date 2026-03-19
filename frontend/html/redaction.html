@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Redectio – Redaction</title>
+
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Main layout + app logic -->
+  <script type="module" src="../app/layout.js"></script>
+  <script type="module" src="../app.js"></script>
+</head>
+
+<body data-theme="system" data-density="comfortable" data-page="redaction">
+  <div id="alertContainer"></div>
+  <div id="toastContainer" class="toast-container"></div>
+
+  <div class="app-root">
+    <!-- HEADER (loaded via layout.js) -->
+    <div id="base-header"></div>
+
+    <div class="app-body">
+      <main class="main">
+        <div class="content">
+          <div class="workspace">
+            <!-- LEFT COLUMN: Sidebar (partial) -->
+            <div id="base-sidebar"></div>
+
+            <!-- CENTER COLUMN: PDF Viewer -->
+            <section class="viewer-panel">
+              <div class="viewer-header">
+                <div class="mini-toolbar">
+                  <button id="btnToggleHighlight" class="btn btn-ghost btn-small" data-tooltip="Toggle highlight&#10;Tip: Enables highlight tool&#10;Shortcut: H">
+                    <i data-lucide="highlighter"></i>
+                  </button>
+                  <button id="btnPanMode" class="btn btn-ghost btn-small" data-tooltip="Pan mode&#10;Tip: Drag to pan the page">
+                    <i data-lucide="hand"></i>
+                  </button>
+                </div>
+
+                <div class="zoom-controls">
+                  <button id="btnZoomOut" class="btn btn-ghost btn-small" data-tooltip="Zoom out&#10;Tip: Reduce zoom">
+                    <i data-lucide="zoom-out"></i>
+                  </button>
+                  <span id="zoomInfo">100%</span>
+                  <button id="btnZoomIn" class="btn btn-ghost btn-small" data-tooltip="Zoom in&#10;Tip: Increase zoom">
+                    <i data-lucide="zoom-in"></i>
+                  </button>
+                  <button id="btnPrevPage" class="btn btn-ghost btn-small" data-tooltip="Previous page&#10;Shortcut: Ctrl+←">
+                    <i data-lucide="chevron-left"></i>
+                  </button>
+                  <span id="pageInfo" class="page-info" aria-label="Page indicator">
+                    <input
+                      id="pageJumpInput"
+                      type="number"
+                      min="1"
+                      step="1"
+                      inputmode="numeric"
+                      aria-label="Jump to page"
+                      value="1"
+                    />
+                    <span id="pageTotalText">/ 1</span>
+                  </span>
+                  <button id="btnNextPage" class="btn btn-ghost btn-small" data-tooltip="Next page&#10;Shortcut: Ctrl+→">
+                    <i data-lucide="chevron-right"></i>
+                  </button>
+                </div>
+
+                <button id="searchToggle" class="btn btn-ghost btn-small search-icon" data-tooltip="Search (Ctrl+F)">
+                  <i data-lucide="search"></i>
+                </button>
+              </div>
+
+              <!-- Floating Search Bar -->
+              <div id="floatingSearchBar" class="floating-search">
+                <div class="search-inner">
+                  <i data-lucide="search"></i>
+                  <input id="searchInput" type="text" placeholder="Search..." />
+                  <button id="btnSearchPrev" class="btn btn-small" data-tooltip="Previous Match">
+                    <i data-lucide="chevron-up"></i>
+                  </button>
+                  <button id="btnSearchNext" class="btn btn-small" data-tooltip="Next Match">
+                    <i data-lucide="chevron-down"></i>
+                  </button>
+                  <button id="btnSearchRedactAll" class="btn btn-small" data-tooltip="Redact All Matches">
+                    <i data-lucide="eraser"></i>
+                  </button>
+                  <button id="btnCloseSearch" class="btn btn-small btn-ghost" data-tooltip="Close Search">
+                    <i data-lucide="x"></i>
+                  </button>
+                </div>
+                <div id="searchSuggestions" class="suggestions hidden"></div>
+              </div>
+
+              <div class="pdf-scroll-container">
+                <div id="pdfPagesColumn" class="pdf-pages-column"></div>
+              </div>
+            </section>
+
+            <!-- RIGHT COLUMN: Tools (partial) -->
+            <aside class="right-panel">
+              <div id="base-tools"></div>
+            </aside>
+          </div>
+
+          <!-- FOOTER (partial) -->
+          <div id="base-footer"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- PLUGIN SETTINGS MODAL -->
+  <div id="pluginModal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="pluginModalTitle"></h3>
+      <div id="pluginSettingsContainer"></div>
+      <div class="modal-actions">
+        <button id="pluginRunBtn" class="btn btn-primary">Run</button>
+        <button id="pluginCancelBtn" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
+
